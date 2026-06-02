@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>オンボーディング管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F6F2;--surface:#fff;--surface2:#F0EEE8;--border:#E2DFD6;--border2:#C8C4B8;--text:#1A1916;--text2:#6B6860;--text3:#9B9890;--accent:#2D5A3D;--red:#C0392B;--red-light:#FDECEA;--amber:#B7770D;--amber-light:#FEF3DC;--green:#2D5A3D;--green-light:#E8F0EA;--blue:#1E4A7A;--blue-light:#E8F0F8;--mono:'DM Mono',monospace;--sans:'Noto Sans JP',sans-serif;--r:8px;--rl:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column}
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.logo h1{font-size:13px;font-weight:700;letter-spacing:.05em}
+.logo span{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.nav{padding:12px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent);color:#fff}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-sec{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text3);padding:12px 10px 4px;text-transform:uppercase}
+.sb-foot{padding:16px;border-top:1px solid var(--border)}
+.al-badge{background:var(--red-light);color:var(--red);font-size:11px;font-family:var(--mono);font-weight:500;padding:4px 10px;border-radius:100px;text-align:center;cursor:pointer}
+.al-badge.ok{background:var(--green-light);color:var(--green)}
+.topbar{padding:16px 24px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar h2{font-size:16px;font-weight:700}
+.topbar-r{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);font-size:13px;font-family:var(--sans);cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--surface);color:var(--text2)}
+.btn:hover{border-color:var(--border2);color:var(--text)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{opacity:.9;color:#fff}
+.btn svg{width:14px;height:14px}
+.content{flex:1;overflow-y:auto;padding:24px}
+.sum-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px}
+.sum-card .lbl{font-size:11px;color:var(--text3);margin-bottom:6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.sum-card .val{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--text);line-height:1}
+.sum-card .val.red{color:var(--red)}.sum-card .val.amber{color:var(--amber)}.sum-card .val.green{color:var(--green)}
+.sum-card .sub{font-size:11px;color:var(--text3);margin-top:4px}
+.tbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.srch{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:13px;background:var(--surface);color:var(--text);outline:none}
+.srch:focus{border-color:var(--border2)}
+select.flt{padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:13px;background:var(--surface);color:var(--text);outline:none;cursor:pointer}
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .18s ease,box-shadow .18s ease,transform .18s ease;cursor:pointer;position:relative}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#FAFAF8;box-shadow:0 3px 10px rgba(0,0,0,0.07);transform:translateY(-1px);z-index:1}
+tbody tr.al-red{border-left:4px solid var(--red);background:linear-gradient(90deg,#FDECEA 0%,#FFFAF9 40px)}
+tbody tr.al-amber{border-left:4px solid #E9A420;background:linear-gradient(90deg,#FEF3DC 0%,#FFFCF4 40px)}
+tbody tr.al-red:hover{background:linear-gradient(90deg,#FAD5D2 0%,#FFF4F3 40px)}
+tbody tr.al-amber:hover{background:linear-gradient(90deg,#FAE8B8 0%,#FFF8EC 40px)}
+@keyframes al-dot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(0.7)}}
+/* pulse animation for red rows */
+@keyframes al-pulse{0%,100%{box-shadow:inset 3px 0 0 var(--red)}50%{box-shadow:inset 3px 0 8px rgba(192,57,43,0.25)}}
+tbody tr.al-red{animation:al-pulse 3s ease-in-out infinite}
+tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.person-cell{display:flex;align-items:center;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.av-green{background:var(--green-light);color:var(--green)}
+.av-red{background:var(--red-light);color:var(--red)}
+.av-amber{background:var(--amber-light);color:var(--amber)}
+.av-gray{background:var(--surface2);color:var(--text3)}
+.person-name{font-weight:600;font-size:13px}
+.person-date{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.metric-cell{display:flex;flex-direction:column;gap:2px}
+.metric-val{font-size:13px;font-weight:500}
+.metric-sub{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;flex-shrink:0}
+.sd-green{background:var(--green)}.sd-gray{background:var(--text3)}
+.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:500;font-family:var(--mono);white-space:nowrap}
+.b-red{background:var(--red-light);color:var(--red)}.b-amber{background:var(--amber-light);color:var(--amber)}.b-green{background:var(--green-light);color:var(--green)}.b-blue{background:var(--blue-light);color:var(--blue)}.b-gray{background:var(--surface2);color:var(--text2)}
+.ib{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:4px;line-height:0;transition:all .1s}
+.ib:hover{color:var(--text);background:var(--surface2)}
+.ib svg{width:15px;height:15px}
+.ib.del:hover{color:var(--red)}
+.mo{display:none;position:fixed;inset:0;background:rgba(26,25,22,.5);z-index:200;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.md{background:var(--surface);border-radius:var(--rl);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.md-hd{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.md-hd h3{font-size:15px;font-weight:700}
+.md-bd{padding:20px 24px}
+.md-ft{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fr{display:flex;flex-direction:column;gap:4px}
+.fr.full{grid-column:1/-1}
+.fr label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono)}
+.fr input,.fr select,.fr textarea{padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--sans);font-size:13px;background:var(--surface);color:var(--text);outline:none;transition:border .15s}
+.fr input:focus,.fr select:focus{border-color:var(--accent)}
+.fr textarea{resize:vertical;min-height:56px}
+.fsec{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--border)}
+.fsec:first-child{border-top:none;padding-top:0;margin-top:0}
+/* Detail modal */
+.dmd{width:640px}
+.di-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.di-box{background:var(--surface2);border-radius:var(--r);padding:12px}
+.di-box .dl{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.di-box .dv{font-size:14px;font-weight:500}
+.cs{margin-bottom:20px}
+.cs h4{font-size:11px;font-weight:700;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.mchart{display:flex;align-items:flex-end;gap:3px;height:56px}
+.mchart-b{flex:1;border-radius:2px 2px 0 0;min-height:4px;cursor:default}
+.mlabs{display:flex;gap:3px;margin-top:4px}
+.mlabs span{flex:1;font-size:9px;font-family:var(--mono);color:var(--text3);text-align:center}
+.al-list{display:flex;flex-direction:column;gap:6px}
+.al-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);font-size:12px}
+.al-item.red{background:var(--red-light);color:var(--red)}
+.al-item.amber{background:var(--amber-light);color:var(--amber)}
+.al-item.ok{background:var(--green-light);color:var(--green)}
+.al-item svg{width:14px;height:14px;flex-shrink:0}
+/* full alert list */
+.alf-list{display:flex;flex-direction:column;gap:8px}
+.alf-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);cursor:pointer;transition:all .15s}
+.alf-item:hover{border-color:var(--border2)}
+.alf-item.red{border-left:4px solid var(--red)}
+.alf-item.amber{border-left:4px solid #E9A420}
+.al-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.al-dot.red{background:var(--red)}.al-dot.amber{background:#E9A420}
+.aln{font-weight:700;font-size:13px;min-width:90px}
+.alm{color:var(--text2);font-size:13px;flex:1}
+.alch svg{width:14px;height:14px;color:var(--text3)}
+/* page tabs */
+.ptabs{display:flex;gap:2px;margin-bottom:16px;background:var(--surface2);border-radius:var(--r);padding:3px;width:fit-content}
+.ptab{padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);border:none;background:none;font-family:var(--sans);transition:all .15s}
+.ptab.active{background:var(--surface);color:var(--text);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.page{display:none}.page.active{display:block}
+.empty{text-align:center;padding:48px 24px;color:var(--text3);font-size:13px}
+/* record entry in detail */
+.rec-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.rec-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--r);font-size:12px;font-family:var(--mono)}
+.rec-row .ry{color:var(--text3);min-width:50px}
+.rec-row .rv{font-weight:500;flex:1}
+.rec-row .rdel{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px}
+.rec-row .rdel:hover{color:var(--red)}
+.add-rec-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px dashed var(--border2);border-radius:var(--r);background:none;cursor:pointer;color:var(--text2);font-size:12px;font-family:var(--sans);width:100%;margin-top:8px;transition:all .15s}
+.add-rec-btn:hover{background:var(--surface2);color:var(--text)}
+.inline-form{background:var(--surface2);border-radius:var(--r);padding:12px;margin-top:8px;display:none}
+.inline-form.open{display:block}
+.if-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.if-grid .fr label{font-size:10px}
+.if-grid .fr input,.if-grid .fr select{padding:6px 8px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo"><h1>Onboarding</h1><span>管理システム</span></div>
+  <nav class="nav">
+    <div class="nav-sec">メニュー</div>
+    <button class="nav-item active" onclick="showPage('list',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>入社者一覧
+    </button>
+    <button class="nav-item" onclick="showPage('alerts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>アラート
+    </button>
+    <button class="nav-item" onclick="showPage('stats',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>離職率・統計
+    </button>
+
+  </nav>
+  <div class="sb-foot"><div id="sbBadge" class="al-badge ok" onclick="showPage('alerts',document.querySelectorAll('.nav-item')[1])">✓ アラートなし</div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">入社者一覧</h2>
+    <div class="topbar-r">
+      <button class="btn" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV出力</button>
+      <button class="btn btn-primary" onclick="openAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>入社者を追加</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="page active" id="page-list">
+      <div class="sum-grid" id="sumGrid"></div>
+      <div class="tbar">
+        <input class="srch" id="srch" placeholder="名前・メンター・部長で検索..." oninput="renderTable()">
+        <select class="flt" id="fltStatus" onchange="renderTable()"><option value="">全在籍状況</option><option>在籍</option><option>退職</option></select>
+        <select class="flt" id="fltAlert" onchange="renderTable()"><option value="">全アラート</option><option value="red">緊急</option><option value="amber">要注意</option><option value="ok">正常</option></select>
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th style="width:90px">状態</th><th style="width:180px">氏名</th><th style="width:90px">入社日</th><th style="width:60px">在籍</th><th style="width:80px">期間</th>
+          <th>メンター</th><th>部長</th>
+          <th style="width:110px">CC最新</th><th style="width:110px">残業(最新)</th><th style="width:110px">KPI(最新)</th><th style="width:110px">勤怠(最新)</th><th style="width:60px"></th>
+        </tr></thead>
+        <tbody id="tBody"></tbody>
+      </table></div>
+    </div>
+    <div class="page" id="page-alerts"><div id="alertsContent"></div></div>
+    <div class="page" id="page-stats"><div id="statsContent"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="mo" id="addModal">
+<div class="md">
+  <div class="md-hd"><h3>入社者を追加</h3><button class="ib" onclick="closeModal('addModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="md-bd">
+    <div class="fsec">基本情報</div>
+    <div class="fg">
+      <div class="fr"><label>氏名 *</label><input type="text" id="a-name" placeholder="山田 太郎"></div>
+      <div class="fr"><label>入社日 *</label><input type="date" id="a-date"></div>
+      <div class="fr"><label>満1年日</label><input type="date" id="a-date1y"></div>
+      <div class="fr"><label>退職日</label><input type="date" id="a-retire"></div>
+      <div class="fr"><label>在籍状況</label><select id="a-status"><option>在籍</option><option>退職</option></select></div>
+      <div class="fr"><label>在籍期間</label><input type="text" id="a-tenure" placeholder="0年0ヶ月"></div>
+      <div class="fr"><label>メンター</label><input type="text" id="a-mentor"></div>
+      <div class="fr"><label>部長</label><input type="text" id="a-manager"></div>
+      <div class="fr full"><label>備考</label><textarea id="a-note"></textarea></div>
+    </div>
+  </div>
+  <div class="md-ft"><button class="btn" onclick="closeModal('addModal')">キャンセル</button><button class="btn btn-primary" onclick="addPerson()">追加する</button></div>
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="mo" id="editModal">
+<div class="md">
+  <div class="md-hd"><h3>基本情報を編集</h3><button class="ib" onclick="closeModal('editModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="md-bd">
+    <div class="fg">
+      <div class="fr"><label>氏名</label><input type="text" id="e-name"></div>
+      <div class="fr"><label>入社日</label><input type="date" id="e-date"></div>
+      <div class="fr"><label>満1年日</label><input type="date" id="e-date1y"></div>
+      <div class="fr"><label>退職日</label><input type="date" id="e-retire"></div>
+      <div class="fr"><label>在籍状況</label><select id="e-status"><option>在籍</option><option>退職</option></select></div>
+      <div class="fr"><label>在籍期間</label><input type="text" id="e-tenure"></div>
+      <div class="fr"><label>メンター</label><input type="text" id="e-mentor"></div>
+      <div class="fr"><label>部長</label><input type="text" id="e-manager"></div>
+      <div class="fr full"><label>備考</label><textarea id="e-note"></textarea></div>
+    </div>
+  </div>
+  <div class="md-ft"><button class="btn" onclick="closeModal('editModal')">キャンセル</button><button class="btn btn-primary" onclick="saveEdit()">保存する</button></div>
+</div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="mo" id="detailModal">
+<div class="md dmd">
+  <div class="md-hd">
+    <h3 id="d-title">—</h3>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="d-editBtn" onclick="openEditFromDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編集</button>
+      <button class="ib" onclick="closeModal('detailModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+  <div class="md-bd" id="detailBody"></div>
+</div>
+</div>
+
+<script>
+// ── Data model ────────────────────────────────────────────────────
+// records: { cc: [{ym:'2025-06', score:[仕事,人間関係,組織,健康,推奨度]}, ...],
+//            ot: [{ym:'2025-06', value:30}, ...],
+//            kpi: [{ym:'2025-06', target:100000, actual:80000}, ...],
+//            abs: [{ym:'2025-06', absent:0, late:0}, ...] }
+
+const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+function nowYM() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function ymLabel(ym) {
+  const [y,m] = ym.split('-');
+  return `${y}年${parseInt(m)}月`;
+}
+function sortYM(arr) { return [...arr].sort((a,b)=>a.ym<b.ym?-1:1); }
+
+function loadData() {
+  const saved = localStorage.getItem('onboarding_v4');
+  if (saved) return JSON.parse(saved);
+  return [
+    {id:1, name:'樋脇 彩夏',   date:'2025-01-01',date1y:'2026-01-01',retire:'',          status:'在籍',tenure:'1年5ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:2, name:'片貝 匡一朗', date:'2025-05-01',date1y:'2026-05-01',retire:'',          status:'在籍',tenure:'1年1ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-11',target:3309000,actual:0},{ym:'2025-12',target:318000,actual:0}],abs:[]}},
+    {id:3, name:'今井 輝',     date:'2025-06-01',date1y:'2026-06-01',retire:'',          status:'在籍',tenure:'1年0ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-11',target:450000,actual:0},{ym:'2025-12',target:15000,actual:0}],abs:[]}},
+    {id:4, name:'石黒 翼',     date:'2025-06-01',date1y:'2026-06-01',retire:'',          status:'在籍',tenure:'1年0ヶ月', mentor:'',manager:'',note:'⚠CC低下',records:{cc:[],ot:[],kpi:[{ym:'2025-11',target:60000,actual:0}],abs:[]}},
+    {id:5, name:'佐々木 建太', date:'2025-06-21',date1y:'2026-06-21',retire:'',          status:'在籍',tenure:'0年11ヶ月',mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:6, name:'岡 佳生',     date:'2025-08-21',date1y:'2026-08-21',retire:'2026-04-25',status:'退職',tenure:'0年8ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-11',target:90000,actual:0}],abs:[]}},
+    {id:7, name:'丸山 恭平',   date:'2025-09-01',date1y:'2026-09-01',retire:'',          status:'在籍',tenure:'0年9ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:8, name:'本郷 克哉',   date:'2025-09-21',date1y:'2026-09-21',retire:'',          status:'在籍',tenure:'0年8ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-11',target:147300,actual:0},{ym:'2025-12',target:312000,actual:0}],abs:[{ym:'2026-02',absent:4,late:1},{ym:'2026-12',absent:0,late:1}]}},
+    {id:9, name:'町田 健',     date:'2025-10-01',date1y:'2026-10-01',retire:'',          status:'在籍',tenure:'0年8ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:10,name:'石渡 寛介',   date:'2025-10-01',date1y:'2026-10-01',retire:'2026-05-02',status:'退職',tenure:'0年7ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[{ym:'2025-11',absent:1,late:0}]}},
+    {id:11,name:'酒井 さやか', date:'2025-11-01',date1y:'2026-11-01',retire:'',          status:'在籍',tenure:'0年7ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:12,name:'阿波 洋輔',   date:'2025-12-01',date1y:'2026-12-01',retire:'',          status:'在籍',tenure:'0年6ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:13,name:'木野 聡',     date:'2025-12-01',date1y:'2026-12-01',retire:'2026-03-31',status:'退職',tenure:'0年3ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:14,name:'堀 公輔',     date:'2026-01-01',date1y:'2027-01-01',retire:'',          status:'在籍',tenure:'0年5ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-12',target:108000,actual:0}],abs:[{ym:'2025-12',absent:0,late:3}]}},
+    {id:15,name:'土井 健',     date:'2026-01-01',date1y:'2027-01-01',retire:'',          status:'在籍',tenure:'0年5ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[{ym:'2025-11',absent:0,late:1}]}},
+    {id:16,name:'岡本 圭',     date:'2026-01-01',date1y:'2027-01-01',retire:'',          status:'在籍',tenure:'0年5ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:17,name:'葛西 幸菜',   date:'2026-01-01',date1y:'2027-01-01',retire:'',          status:'在籍',tenure:'0年5ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-12',target:120000,actual:0}],abs:[]}},
+    {id:18,name:'山中 直樹',   date:'2026-02-01',date1y:'2027-02-01',retire:'',          status:'在籍',tenure:'0年4ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:19,name:'矢野 映海',   date:'2026-02-01',date1y:'2027-02-01',retire:'',          status:'在籍',tenure:'0年4ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[{ym:'2025-12',target:72000,actual:0}],abs:[]}},
+    {id:20,name:'桑原 吏樹',   date:'2026-03-01',date1y:'2027-03-01',retire:'2026-05-31',status:'退職',tenure:'0年2ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:21,name:'公文 真由紀', date:'2026-03-21',date1y:'2027-03-21',retire:'',          status:'在籍',tenure:'0年2ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:22,name:'坂詰 奈津季', date:'2026-04-01',date1y:'2027-04-01',retire:'',          status:'在籍',tenure:'0年2ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:23,name:'笠井 雄大',   date:'2026-05-01',date1y:'2027-05-01',retire:'',          status:'在籍',tenure:'0年1ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+    {id:24,name:'下山 泰志',   date:'2026-05-01',date1y:'2027-05-01',retire:'',          status:'在籍',tenure:'0年1ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
+  ];
+}
+
+let people = loadData();
+let nextId = Math.max(...people.map(p=>p.id)) + 1;
+let editingId = null;
+let detailId = null;
+
+function save() { localStorage.setItem('onboarding_v4', JSON.stringify(people)); }
+
+// ── Record helpers ────────────────────────────────────────────────
+function latestRec(arr) { if(!arr||!arr.length) return null; return sortYM(arr).at(-1); }
+function latestCC(p) {
+  const r = latestRec(p.records.cc);
+  if(!r) return null;
+  const s = r.score.reduce((a,b)=>a+b,0);
+  return {score:s, ym:r.ym, detail:r.score};
+}
+function prevCC(p, curYM) {
+  const sorted = sortYM(p.records.cc).filter(r=>r.ym < curYM);
+  if(!sorted.length) return null;
+  return sorted.at(-1).score.reduce((a,b)=>a+b,0);
+}
+function latestOT(p) { const r=latestRec(p.records.ot); return r?{v:r.value,ym:r.ym}:null; }
+function latestKPI(p) {
+  const r=latestRec(p.records.kpi);
+  if(!r||r.rate==null) return null;
+  return {rate:r.rate, ym:r.ym};
+}
+function latestAbs(p) { const r=latestRec(p.records.abs); return r?{absent:r.absent,late:r.late,ym:r.ym}:null; }
+
+// ── Thresholds (fixed) ───────────────────────────────────────────
+const THRESHOLDS = {
+  ccWarn: 15,      // 15点未満で要注意条件のひとつ
+  ccDrop: true,    // 前回より下回ったら要注意条件のひとつ
+  // 両方満たした場合 → 緊急
+  otAmber: 40,     // 40h以上で要注意
+  otRed: 50,       // 50h以上で緊急
+  absAmber: 3,     // 欠勤+遅刻の累計3以上で要注意
+  absRed: 5,       // 欠勤+遅刻の累計5以上で緊急
+  riskAmber: 2.5,  // 離職懸念度2.5以上で要注意
+  riskRed: 4.0,    // 離職懸念度4.0以上で緊急
+};
+
+// ── Alerts ────────────────────────────────────────────────────────
+function getAlerts(p) {
+  const alerts=[];
+  const T=THRESHOLDS;
+  const cc=latestCC(p);
+
+  // ── CC: 15点未満 OR 前回比下落 → 要注意、両方 → 緊急
+  if(cc){
+    const s=cc.score;
+    const prev=prevCC(p,cc.ym);
+    const underThresh = s < T.ccWarn;
+    const dropped = prev !== null && s < prev;
+    if(underThresh && dropped)
+      alerts.push({type:'red', msg:`CC緊急 (${s}/30点、前回${prev}点から下落)`});
+    else if(underThresh)
+      alerts.push({type:'amber', msg:`CCスコア低下 (${s}/30点)`});
+    else if(dropped)
+      alerts.push({type:'amber', msg:`CC前回比下落 (${prev}→${s}点)`});
+  }
+
+  // ── 残業: 40h以上→要注意、50h以上→緊急
+  const ot=latestOT(p);
+  if(ot){
+    if(ot.v>=T.otRed)       alerts.push({type:'red',   msg:`残業超過 (${ot.v}h/月)`});
+    else if(ot.v>=T.otAmber) alerts.push({type:'amber', msg:`残業増加傾向 (${ot.v}h/月)`});
+  }
+
+  // ── 勤怠: 直近月の欠勤+遅刻の累計
+  const latAb=latestAbs(p);
+  if(latAb){
+    const total=latAb.absent+latAb.late;
+    if(total>=T.absRed)       alerts.push({type:'red',   msg:`勤怠悪化 欠勤${latAb.absent}+遅刻${latAb.late}=${total} (${ymLabel(latAb.ym)})`});
+    else if(total>=T.absAmber) alerts.push({type:'amber', msg:`勤怠注意 欠勤${latAb.absent}+遅刻${latAb.late}=${total} (${ymLabel(latAb.ym)})`});
+  }
+
+  // ── 1on1: 最新の離職懸念度
+  if(p.records.interviews&&p.records.interviews.length){
+    const latest=sortYM(p.records.interviews).at(-1);
+    if(latest&&latest.risk!=null){
+      if(latest.risk>=T.riskRed)       alerts.push({type:'red',   msg:`離職懸念度 高 (★${latest.risk}/5、${ymLabel(latest.ym)})`});
+      else if(latest.risk>=T.riskAmber) alerts.push({type:'amber', msg:`離職懸念度 注意 (★${latest.risk}/5、${ymLabel(latest.ym)})`});
+    }
+  }
+
+  return alerts;
+}
+function alertLevel(p){const a=getAlerts(p);return a.some(x=>x.type==='red')?'red':a.some(x=>x.type==='amber')?'amber':'ok';}
+
+// ── Summary ───────────────────────────────────────────────────────
+function renderSummary(){
+  const total=people.length,active=people.filter(p=>p.status==='在籍').length,retired=total-active;
+  const reds=people.filter(p=>alertLevel(p)==='red').length,ambers=people.filter(p=>alertLevel(p)==='amber').length;
+  const rr=(retired/total*100).toFixed(1);
+  document.getElementById('sumGrid').innerHTML=`
+    <div class="sum-card"><div class="lbl">在籍者数</div><div class="val">${active}</div><div class="sub">全${total}名中</div></div>
+    <div class="sum-card"><div class="lbl">退職者数</div><div class="val">${retired}</div><div class="sub">離職率 ${rr}%</div></div>
+    <div class="sum-card"><div class="lbl">緊急アラート</div><div class="val red">${reds}</div><div class="sub">要即対応</div></div>
+    <div class="sum-card"><div class="lbl">要注意</div><div class="val amber">${ambers}</div><div class="sub">経過観察</div></div>
+    <div class="sum-card"><div class="lbl">問題なし</div><div class="val green">${active-reds-ambers}</div><div class="sub">在籍者中</div></div>`;
+  const n=reds+ambers,badge=document.getElementById('sbBadge');
+  badge.className='al-badge'+(n?'':' ok');
+  badge.textContent=n?`⚠ アラート ${n}件`:'✓ アラートなし';
+}
+
+// ── Table ─────────────────────────────────────────────────────────
+function renderTable(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const fs=document.getElementById('fltStatus').value;
+  const fa=document.getElementById('fltAlert').value;
+  const rows=people.filter(p=>{
+    if(q&&!p.name.toLowerCase().includes(q)&&!(p.mentor||'').toLowerCase().includes(q)&&!(p.manager||'').toLowerCase().includes(q)) return false;
+    if(fs&&p.status!==fs) return false;
+    if(fa&&alertLevel(p)!==fa) return false;
+    return true;
+  });
+  const tb=document.getElementById('tBody');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="12"><div class="empty">該当者なし</div></td></tr>`;return;}
+  tb.innerHTML=rows.map(p=>{
+    const al=alertLevel(p);
+    const alB=al==='red'?'<span class="badge b-red">緊急</span>':al==='amber'?'<span class="badge b-amber">要注意</span>':'<span class="badge b-green">正常</span>';
+    const stB=p.status==='退職'?'<span class="badge b-gray">退職</span>':'<span class="badge b-blue">在籍</span>';
+    const cc=latestCC(p);
+    const ccB=cc?`<span class="badge ${cc.score<=15?'b-red':cc.score<=20?'b-amber':'b-green'}">${cc.score}/30 <span style="font-weight:400;opacity:.7">${ymLabel(cc.ym)}</span></span>`:'<span class="badge b-gray">未入力</span>';
+    const ot=latestOT(p);
+    const otB=ot?`<span class="badge ${ot.v>=45?'b-red':ot.v>=30?'b-amber':'b-gray'}">${ot.v}h <span style="font-weight:400;opacity:.7">${ymLabel(ot.ym)}</span></span>`:'<span class="badge b-gray">未入力</span>';
+    const kpi=latestKPI(p);
+    const kpiB=kpi?`<span class="badge ${kpi.rate<70?'b-red':kpi.rate<90?'b-amber':'b-green'}">${kpi.rate}% <span style="font-weight:400;opacity:.7">${ymLabel(kpi.ym)}</span></span>`:'<span class="badge b-gray">未入力</span>';
+    return `<tr class="${al==='red'?'al-red':al==='amber'?'al-amber':''}" onclick="openDetail(${p.id})">
+      <td>${alB}</td><td style="font-weight:500">${p.name}</td>
+      <td style="font-family:var(--mono);font-size:12px">${p.date||'—'}</td>
+      <td>${stB}</td><td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
+      <td style="font-size:12px">${p.mentor||'—'}</td><td style="font-size:12px">${p.manager||'—'}</td>
+      <td>${ccB}</td><td>${otB}</td><td>${kpiB}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="ib" onclick="openEditById(${p.id})" title="編集"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="ib del" onclick="deletePerson(${p.id})" title="削除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ── Alerts page ───────────────────────────────────────────────────
+function renderAlerts(){
+  const items=[];
+  people.forEach(p=>getAlerts(p).forEach(a=>items.push({...a,name:p.name,id:p.id})));
+  const el=document.getElementById('alertsContent');
+  if(!items.length){el.innerHTML=`<div class="empty" style="padding:64px">現在アラートはありません 🎉</div>`;return;}
+  const reds=items.filter(i=>i.type==='red'),ambers=items.filter(i=>i.type==='amber');
+  const row=a=>`<div class="alf-item ${a.type}" onclick="openDetail(${a.id})"><div class="al-dot ${a.type}"></div><div class="aln">${a.name}</div><div class="alm">${a.msg}</div><div class="alch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>`;
+  let h='';
+  if(reds.length) h+=`<div style="font-size:11px;font-weight:700;color:var(--red);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">緊急 (${reds.length}件)</div><div class="alf-list" style="margin-bottom:20px">${reds.map(row).join('')}</div>`;
+  if(ambers.length) h+=`<div style="font-size:11px;font-weight:700;color:var(--amber);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">要注意 (${ambers.length}件)</div><div class="alf-list">${ambers.map(row).join('')}</div>`;
+  el.innerHTML=h;
+}
+
+// ── Stats page ────────────────────────────────────────────────────
+let statsYear=new Date().getFullYear();
+function renderStats(){
+  const allYears=new Set();
+  people.forEach(p=>{
+    if(p.date) allYears.add(new Date(p.date).getFullYear());
+  });
+  const years=[...allYears].sort();
+  if(!years.length) years.push(new Date().getFullYear());
+  if(!years.includes(statsYear)) statsYear=years.at(-1);
+  const yr=statsYear;
+
+  // 月ごとの入社者と、その人が今も在籍しているか
+  const monthData=Array.from({length:12},(_,m)=>{
+    const joinedThisMonth=people.filter(p=>{
+      if(!p.date) return false;
+      const d=new Date(p.date);
+      return d.getFullYear()===yr && d.getMonth()===m;
+    });
+    const active=joinedThisMonth.filter(p=>p.status==='在籍').length;
+    const retired=joinedThisMonth.filter(p=>p.status==='退職').length;
+    return {joined:joinedThisMonth.length,active,retired};
+  });
+
+  const totalJoined=monthData.reduce((a,d)=>a+d.joined,0);
+  const totalRetired=monthData.reduce((a,d)=>a+d.retired,0);
+  const rate=totalJoined>0?(totalRetired/totalJoined*100).toFixed(1):'0.0';
+
+  const maxBar=Math.max(...monthData.map(d=>d.joined),1);
+  const barHtml=monthData.map((d,i)=>{
+    const hJ=Math.round((d.joined/maxBar)*72)+(d.joined>0?4:0);
+    const hR=d.joined>0?Math.round((d.retired/d.joined)*hJ):0;
+    const hA=hJ-hR;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="height:72px;width:100%;display:flex;flex-direction:column;justify-content:flex-end">
+        ${d.joined>0?`<div style="width:100%;height:${hA}px;background:var(--accent);border-radius:${hR?'0':'3px'} ${hR?'0':'3px'} 0 0" title="${d.active}名在籍"></div>
+        <div style="width:100%;height:${hR}px;background:var(--red);border-radius:3px 3px 0 0" title="${d.retired}名退職"></div>`
+        :`<div style="width:100%;height:4px;background:var(--border);border-radius:2px 2px 0 0"></div>`}
+      </div>
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text3)">${MONTHS[i].replace('月','')}</div>
+      ${d.joined>0?`<div style="font-size:9px;font-family:var(--mono);color:var(--text3)">${d.joined}名</div>`:''}
+    </div>`;
+  }).join('');
+
+  const yearTabs=years.map(y=>`<button class="ptab${y===yr?' active':''}" onclick="statsYear=${y};renderStats()">${y}年</button>`).join('');
+
+  const detailRows=people.filter(p=>p.date&&new Date(p.date).getFullYear()===yr).map(p=>{
+    const m=new Date(p.date).getMonth();
+    return `<tr><td style="font-weight:500">${p.name}</td>
+      <td style="font-family:var(--mono);font-size:12px">${p.date}</td>
+      <td style="font-size:12px;color:var(--text2)">${MONTHS[m]}</td>
+      <td>${p.status==='退職'?`<span class="badge b-gray">退職</span><span style="font-size:11px;color:var(--text3);margin-left:6px">${p.retire||''}</span>`:'<span class="badge b-blue">在籍</span>'}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="5"><div class="empty">該当者なし</div></td></tr>`;
+
+  document.getElementById('statsContent').innerHTML=`
+    <div class="ptabs">${yearTabs}</div>
+    <div style="margin-bottom:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text2)">
+      <strong style="color:var(--text)">集計方法：</strong>${yr}年に入社した人のうち、現在退職している人の割合です（月別に入社者内訳を表示）
+    </div>
+    <div class="sum-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+      <div class="sum-card"><div class="lbl">${yr}年 入社者数</div><div class="val">${totalJoined}</div><div class="sub">1月〜12月</div></div>
+      <div class="sum-card"><div class="lbl">${yr}年 退職者数</div><div class="val red">${totalRetired}</div></div>
+      <div class="sum-card"><div class="lbl">${yr}年 離職率</div><div class="val ${parseFloat(rate)>20?'red':parseFloat(rate)>10?'amber':'green'}">${rate}%</div><div class="sub">入社者中の退職割合</div></div>
+    </div>
+    <div class="tw" style="margin-bottom:20px">
+      <div style="padding:16px 20px 12px">
+        <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">月別入社者（緑=在籍中 / 赤=退職済）</div>
+        <div style="display:flex;gap:4px;align-items:flex-end;padding-top:8px">${barHtml}</div>
+        <div style="display:flex;gap:12px;margin-top:12px">
+          <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--accent);border-radius:2px"></div>在籍中</div>
+          <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div>退職済</div>
+        </div>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>氏名</th><th>入社日</th><th>入社月</th><th>在籍状況</th><th>在籍期間</th></tr></thead>
+      <tbody>${detailRows}</tbody>
+    </table></div>`;
+}
+
+// ── Detail modal ──────────────────────────────────────────────────
+function openDetail(id){
+  const p=people.find(x=>x.id===id); if(!p) return;
+  detailId=id;
+  document.getElementById('d-title').textContent=p.name;
+  renderDetailBody(p);
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function renderDetailBody(p){
+  const alerts=getAlerts(p);
+  const cc=latestCC(p), ot=latestOT(p), kpi=latestKPI(p);
+
+  // chart helpers
+  const makeChart=(items,maxVal,colorFn,valFn,titleFn)=>{
+    if(!items||!items.length) return `<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>`;
+    const sorted=sortYM(items);
+    const mx=Math.max(...sorted.map(valFn),maxVal||1);
+    return `<div class="mchart">${sorted.map(r=>{
+      const v=valFn(r),h=Math.round((v/mx)*52)+4,col=colorFn(v);
+      return `<div class="mchart-b" style="background:${col};height:${h}px" title="${titleFn(r)}"></div>`;
+    }).join('')}</div>
+    <div class="mlabs">${sorted.map(r=>`<span>${r.ym.slice(0,4)==new Date().getFullYear()?MONTHS[parseInt(r.ym.slice(5))-1]:r.ym.replace('-','年').replace(/^(\d{4})年(\d+)$/,'$1/$2')}</span>`).join('')}</div>`;
+  };
+
+  const ccChart=makeChart(p.records.cc,30,v=>v<=15?'var(--red)':v<=20?'#E9A420':'var(--accent)',r=>r.score.reduce((a,b)=>a+b,0),r=>`${ymLabel(r.ym)}: ${r.score.reduce((a,b)=>a+b,0)}点`);
+  const otChart=makeChart(p.records.ot,0,v=>v>=45?'var(--red)':v>=30?'#E9A420':'var(--blue)',r=>r.value,r=>`${ymLabel(r.ym)}: ${parseFloat(r.value).toFixed(1)}h`);
+
+  // KPI chart with 100% line
+  let kpiChart='<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>';
+  if(p.records.kpi&&p.records.kpi.some(r=>r.rate!=null)){
+    const sorted=sortYM(p.records.kpi).filter(r=>r.rate!=null);
+    const rates=sorted.map(r=>r.rate);
+    const mx=Math.max(...rates,100);
+    const b100=Math.round((100/mx)*52)+4;
+    kpiChart=`<div style="position:relative">
+      <div class="mchart">${sorted.map((r,i)=>{
+        const v=rates[i],h=Math.round((v/mx)*52)+4,col=v<70?'var(--red)':v<90?'#E9A420':'var(--accent)';
+        return `<div class="mchart-b" style="background:${col};height:${h}px" title="${ymLabel(r.ym)}: ${v}%"></div>`;
+      }).join('')}</div>
+      <div style="position:absolute;bottom:${b100}px;left:0;right:0;border-top:1px dashed var(--border2);pointer-events:none"></div>
+    </div>
+    <div class="mlabs">${sorted.map(r=>`<span>${MONTHS[parseInt(r.ym.slice(5))-1]}</span>`).join('')}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${sorted.map((r,i)=>`<div style="background:var(--surface2);border-radius:var(--r);padding:5px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)} </span><span style="font-weight:500">${rates[i].toFixed(1)}%</span></div>`).join('')}</div>`;
+  }
+
+  // Abs chart
+  let absChart='<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>';
+  if(p.records.abs&&p.records.abs.length){
+    const sorted=sortYM(p.records.abs);
+    const mx=Math.max(...sorted.map(r=>r.absent+r.late),1);
+    absChart=`<div class="mchart">${sorted.map(r=>{
+      const tot=r.absent+r.late,h=Math.round((tot/mx)*52)+4;
+      const col=r.absent>=2?'var(--red)':tot>0?'#E9A420':'var(--border)';
+      return '<div class="mchart-b" style="background:'+col+';height:'+h+'px" title="'+ymLabel(r.ym)+': 欠勤'+r.absent+'日 遅刻'+r.late+'回"></div>';
+    }).join('')}</div>
+    <div class="mlabs">${sorted.map(r=>'<span>'+ymLabel(r.ym).replace(/\d{4}年/,'')+'</span>').join('')}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${sorted.filter(r=>r.absent>0||r.late>0).map(r=>'<div style="background:var(--surface2);border-radius:var(--r);padding:5px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">'+ymLabel(r.ym)+' </span><span style="font-weight:500">欠勤'+r.absent+'日 遅刻'+r.late+'回</span></div>').join('')}</div>`;
+  }
+
+  const alertHTML=alerts.length
+    ?alerts.map(a=>`<div class="al-item ${a.type}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${a.msg}</div>`).join('')
+    :`<div class="al-item ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>アラートなし</div>`;
+
+  document.getElementById('detailBody').innerHTML=`
+    <div class="di-grid">
+      <div class="di-box"><div class="dl">入社日</div><div class="dv" style="font-family:var(--mono);font-size:13px">${p.date||'—'}</div></div>
+      <div class="di-box"><div class="dl">在籍状況</div><div class="dv">${p.status}</div></div>
+      <div class="di-box"><div class="dl">在籍期間</div><div class="dv">${p.tenure||'—'}</div></div>
+      <div class="di-box"><div class="dl">メンター</div><div class="dv" style="font-size:13px">${p.mentor||'—'}</div></div>
+      <div class="di-box"><div class="dl">部長</div><div class="dv" style="font-size:13px">${p.manager||'—'}</div></div>
+      <div class="di-box"><div class="dl">退職日</div><div class="dv" style="font-family:var(--mono);font-size:13px">${p.retire||'—'}</div></div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">アラート状況</div>
+      <div class="al-list">${alertHTML}</div>
+    </div>
+
+    <div class="cs"><h4>CCスコア推移（/30点）</h4>${ccChart}</div>
+    <div class="cs"><h4>残業時間推移（h/月）</h4>${otChart}</div>
+    <div class="cs"><h4>営業成績 KPI達成率（%）</h4>${kpiChart}</div>
+    <div class="cs"><h4>勤怠状況（欠勤・遅刻）</h4>${absChart}</div>
+
+    ${(p.records.interviews&&p.records.interviews.length)?`
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">1on1 面談分析履歴</div>
+      <div style="display:flex;flex-direction:column;gap:10px">${sortYM(p.records.interviews).reverse().map(iv=>{
+        const riskCol=iv.risk>=4?'var(--red)':iv.risk>=3?'var(--amber)':'var(--green)';
+        const stars='★'.repeat(iv.risk)+'☆'.repeat(5-iv.risk);
+        const posRows=(iv.positive||[]).map(x=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--green);flex-shrink:0">✓</span><span>${x}</span></div>`).join('');
+        const negRows=(iv.negative||[]).map(x=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--red);flex-shrink:0">!</span><span>${x}</span></div>`).join('');
+        const actRows=(iv.actions||[]).map((x,i)=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--text3);font-family:var(--mono);flex-shrink:0">${i+1}.</span><span>${x}</span></div>`).join('');
+        return `<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+          <div style="padding:8px 12px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="font-size:12px;font-weight:700">${iv.date||ymLabel(iv.ym)}</span>
+              ${iv.interviewer?`<span style="font-size:11px;color:var(--text3);margin-left:8px">面談者: ${iv.interviewer}</span>`:''}
+            </div>
+            <span style="font-size:13px;color:${riskCol};letter-spacing:1px">${stars} 離職懸念 ${iv.risk}/5</span>
+          </div>
+          <div style="padding:10px 12px;font-size:12px;color:var(--text2);display:flex;flex-direction:column;gap:10px">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--green);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">ポジティブな点</div>
+              ${posRows||'<span style="color:var(--text3)">—</span>'}
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--red);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">ネガティブな点</div>
+              ${negRows||'<span style="color:var(--text3)">—</span>'}
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">フォロー施策案</div>
+              ${actRows||'<span style="color:var(--text3)">—</span>'}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}</div>
+    </div>`:''}
+
+    ${p.note?`<div style="margin-bottom:20px;padding:10px 14px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text2)"><span style="font-size:10px;font-weight:700;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-right:8px">備考</span>${p.note}</div>`:''}
+
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">月次データを追加</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <button class="add-rec-btn" onclick="toggleInlineForm('ccForm')">＋ コンディションチェックを追加</button>
+        <button class="add-rec-btn" onclick="toggleInlineForm('otForm')">＋ 残業時間を追加</button>
+        <button class="add-rec-btn" onclick="toggleInlineForm('kpiForm')">＋ 営業成績（KPI）を追加</button>
+        <button class="add-rec-btn" onclick="toggleInlineForm('absForm')">＋ 勤怠（欠勤・遅刻）を追加</button>
+        <button class="add-rec-btn" onclick="toggleInlineForm('oneOnOneForm')" style="grid-column:1/-1;border-color:var(--accent);color:var(--accent)">✦ 1on1面談テキストをAI分析する</button>
+      </div>
+
+      <div class="inline-form" id="ccForm">
+        <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">コンディションチェック（各5点満点、推奨度10点満点）</div>
+        <div class="if-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;">
+          <div class="fr"><label>年月</label><input type="month" id="cc-ym" value="${nowYM()}"></div>
+          <div class="fr"><label>仕事(0-5)</label><input type="number" id="cc-1" min="0" max="5" value="4"></div>
+          <div class="fr"><label>人間関係(0-5)</label><input type="number" id="cc-2" min="0" max="5" value="4"></div>
+          <div class="fr"><label>組織(0-5)</label><input type="number" id="cc-3" min="0" max="5" value="4"></div>
+          <div class="fr"><label>健康(0-5)</label><input type="number" id="cc-4" min="0" max="5" value="4"></div>
+          <div class="fr"><label>推奨度(0-10)</label><input type="number" id="cc-5" min="0" max="10" value="7"></div>
+        </div>
+        <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveCC()">追加</button><button class="btn" onclick="toggleInlineForm('ccForm')">閉じる</button></div>
+      </div>
+
+      <div class="inline-form" id="otForm">
+        <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">残業時間</div>
+        <div class="if-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="fr"><label>年月</label><input type="month" id="ot-ym" value="${nowYM()}"></div>
+          <div class="fr"><label>残業時間（h）</label><input type="number" id="ot-v" min="0" step="0.1" value="20.0"></div>
+        </div>
+        <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveOT()">追加</button><button class="btn" onclick="toggleInlineForm('otForm')">閉じる</button></div>
+      </div>
+
+      <div class="inline-form" id="kpiForm">
+        <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">営業成績（KPI達成率）</div>
+        <div class="if-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="fr"><label>年月</label><input type="month" id="kpi-ym" value="${nowYM()}"></div>
+          <div class="fr"><label>達成率（%）</label><input type="number" id="kpi-r" min="0" max="999" step="0.1" value="" placeholder="例: 87.5"></div>
+        </div>
+        <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveKPI()">追加</button><button class="btn" onclick="toggleInlineForm('kpiForm')">閉じる</button></div>
+      </div>
+
+      <div class="inline-form" id="absForm">
+        <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">勤怠（欠勤・遅刻）</div>
+        <div class="if-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="fr"><label>年月</label><input type="month" id="abs-ym" value="${nowYM()}"></div>
+          <div class="fr"><label>欠勤（日）</label><input type="number" id="abs-ab" min="0" value="0"></div>
+          <div class="fr"><label>遅刻（回）</label><input type="number" id="abs-lt" min="0" value="0"></div>
+        </div>
+        <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveAbs()">追加</button><button class="btn" onclick="toggleInlineForm('absForm')">閉じる</button></div>
+      </div>
+
+      <div class="inline-form" id="oneOnOneForm">
+        <div style="font-size:11px;font-weight:700;margin-bottom:4px;color:var(--text2)">1on1 面談テキストをAI分析</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">ZoomやGoogle Meetの文字起こしをそのままペーストしてください</div>
+        <div class="if-grid" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+          <div class="fr"><label>実施日</label><input type="date" id="oo-date" value="${new Date().toISOString().slice(0,10)}"></div>
+          <div class="fr"><label>面談者</label>
+            <select id="oo-interviewer">
+              <option value="西田 祐恵">西田 祐恵</option>
+              <option value="小林 達也">小林 達也</option>
+            </select>
+          </div>
+        </div>
+        <div class="fr" style="margin-bottom:10px"><label>面談テキスト</label><textarea id="oo-text" style="min-height:120px;font-size:12px" placeholder="例）&#10;A: 最近どうですか？&#10;B: 少し業務量が多くて疲れています..."></textarea></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn btn-primary" onclick="analyzeInterview()">AI分析する</button><button class="btn" onclick="toggleInlineForm('oneOnOneForm')">閉じる</button></div>
+        <div id="oo-result" style="display:none"></div>
+      </div>
+    </div>
+    ${p.note?`<div style="margin-top:16px;padding:12px;background:var(--surface2);border-radius:var(--r);font-size:13px;color:var(--text2)">${p.note}</div>`:''}`;
+}
+
+function analyzeInterview(){
+  const p=people.find(x=>x.id===detailId); if(!p) return;
+  const date=document.getElementById('oo-date').value;
+  const interviewer=document.getElementById('oo-interviewer').value;
+  const text=document.getElementById('oo-text').value.trim();
+  if(!date){alert('実施日を入力してください');return;}
+  if(!text){alert('面談テキストを入力してください');return;}
+  const ym=date.slice(0,7);
+  const resultEl=document.getElementById('oo-result');
+  resultEl.style.display='block';
+  resultEl.innerHTML=`<div style="padding:16px;background:var(--surface2);border-radius:var(--r);font-size:13px;color:var(--text3);text-align:center">AI分析中...</div>`;
+  const prompt=`あなたはHRの専門家です。以下は${p.name}さん（入社日:${p.date}）の1on1面談の記録です（実施日:${date}、面談者:${interviewer}）。
+以下の4点を日本語で分析してください。必ずJSON形式のみで返答してください（マークダウン不可）：
+{
+  "positive": ["ポジティブな点を箇条書きで3点以内"],
+  "negative": ["ネガティブな点・懸念事項を箇条書きで3点以内"],
+  "risk": 1から5の整数（1=離職懸念なし、5=離職懸念が非常に高い）,
+  "riskReason": "離職懸念度の根拠を1文で",
+  "actions": ["フォロー施策案を箇条書きで3点以内"]
+}
+
+面談記録：
+${text}`;
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})})
+  .then(r=>r.json()).then(data=>{
+    const raw=data.content?.find(b=>b.type==='text')?.text||'';
+    let result;
+    try{ result=JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e){ resultEl.innerHTML=`<div style="padding:12px;background:var(--red-light);border-radius:var(--r);font-size:12px;color:var(--red)">解析エラー：AIからの応答を処理できませんでした。</div>`; return; }
+    const stars='★'.repeat(result.risk)+'☆'.repeat(5-result.risk);
+    const riskCol=result.risk>=4?'var(--red)':result.risk>=3?'var(--amber)':'var(--green)';
+    const html=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">
+      <div style="padding:12px 16px;background:var(--accent);color:#fff;font-size:12px;font-weight:700">AI面談分析結果 — ${date} ${p.name} <span style="font-weight:400;opacity:.8">（面談者: ${interviewer}）</span></div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-family:var(--mono);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">ポジティブな点</div>
+        ${result.positive.map(x=>`<div style="display:flex;gap:6px;font-size:12px;margin-bottom:4px;color:var(--green)"><span>✓</span><span>${x}</span></div>`).join('')}
+      </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-family:var(--mono);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">ネガティブな点・懸念事項</div>
+        ${result.negative.map(x=>`<div style="display:flex;gap:6px;font-size:12px;margin-bottom:4px;color:var(--red)"><span>!</span><span>${x}</span></div>`).join('')}
+      </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-family:var(--mono);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">離職懸念度</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px;letter-spacing:2px;color:${riskCol}">${stars}</span>
+          <span style="font-size:20px;font-weight:700;font-family:var(--mono);color:${riskCol}">${result.risk}/5</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px">${result.riskReason}</div>
+      </div>
+      <div style="padding:14px 16px">
+        <div style="font-size:10px;font-family:var(--mono);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">フォロー施策案</div>
+        ${result.actions.map((x,i)=>`<div style="display:flex;gap:6px;font-size:12px;margin-bottom:4px"><span style="color:var(--text3);font-family:var(--mono)">${i+1}.</span><span>${x}</span></div>`).join('')}
+      </div>
+      <div style="padding:10px 16px;background:var(--surface2);border-top:1px solid var(--border)">
+        <button class="btn btn-primary" id="oo-save-btn" style="font-size:12px;padding:5px 12px">この結果を保存する</button>
+        <span style="font-size:11px;color:var(--text3);margin-left:8px">ブラウザに保存 → ポップアップ内「面談分析履歴」に表示されます</span>
+      </div>
+    </div>`;
+    resultEl.innerHTML=html;
+    document.getElementById('oo-save-btn').addEventListener('click',()=>saveInterview(ym,date,interviewer,result));
+  }).catch(()=>{resultEl.innerHTML=`<div style="padding:12px;background:var(--red-light);border-radius:var(--r);font-size:12px;color:var(--red)">通信エラーが発生しました。</div>`;});
+}
+
+function saveInterview(ym,date,interviewer,result){
+  const p=people.find(x=>x.id===detailId); if(!p) return;
+  if(!p.records.interviews) p.records.interviews=[];
+  p.records.interviews=p.records.interviews.filter(r=>r.ym!==ym);
+  p.records.interviews.push({ym,date,interviewer,...result});
+  save(); renderDetailBody(p);
+}
+
+function toggleInlineForm(id){
+  document.querySelectorAll('.inline-form').forEach(f=>{if(f.id!==id)f.classList.remove('open');});
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ── Record save handlers ──────────────────────────────────────────
+function saveCC(){
+  const p=people.find(x=>x.id===detailId); if(!p) return;
+  const ym=document.getElementById('cc-ym').value;
+  if(!ym) return;
+  const score=[+document.getElementById('cc-1').value||0,+document.getElementById('cc-2').value||0,+document.getElementById('cc-3').value||0,+document.getElementById('cc-4').value||0,+document.getElementById('cc-5').value||0];
+  p.records.cc=p.records.cc.filter(r=>r.ym!==ym);
+  p.records.cc.push({ym,score});
+  save(); renderDetailBody(p); renderAll();
+  document.getElementById('ccForm').classList.remove('open');
+}
+function saveOT(){
+  const p=people.find(x=>x.id===detailId); if(!p) return;
+  const ym=document.getElementById('ot-ym').value;
+  if(!ym) return;
+  const value=parseFloat(document.getElementById('ot-v').value)||0;
+  p.records.ot=p.records.ot.filter(r=>r.ym!==ym);
+  p.records.ot.push({ym,value});
+  save(); renderDetailBody(p); renderAll();
+  document.getElementById('otForm').classList.remove('open');
+}
+function saveKPI(){
+  const p=people.find(x=>x.id===detailId); if(!p) return;
+  const ym=document.getElementById('kpi-ym').value;
+  if(!ym) return;
+  const rate=parseFloat(document.getElementById('kpi-r').value);
+  if(isNaN(rate)){alert('達成率を入力してください');return;}
+  p.records.kpi=p.records.kpi.filter(r=>r.ym!==ym);
+  p.records.kpi.push({ym,rate:parseFloat(rate.toFixed(1))});
+  save(); renderDetailBody(p); renderAll();
+  document.getElementById('kpiForm').classList.remove('open');
+}
+function saveAbs(){
+  const p=people.find(x=>x.id===detailId); if(!p) return;
+  const ym=document.getElementById('abs-ym').value;
+  if(!ym) return;
+  const absent=+document.getElementById('abs-ab').value||0,late=+document.getElementById('abs-lt').value||0;
+  p.records.abs=p.records.abs.filter(r=>r.ym!==ym);
+  p.records.abs.push({ym,absent,late});
+  save(); renderDetailBody(p); renderAll();
+  document.getElementById('absForm').classList.remove('open');
+}
+
+// ── Add / Edit / Delete ───────────────────────────────────────────
+function openAdd(){
+  document.getElementById('a-name').value='';
+  document.getElementById('a-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('a-date1y').value='';
+  document.getElementById('a-retire').value='';
+  document.getElementById('a-status').value='在籍';
+  document.getElementById('a-tenure').value='';
+  document.getElementById('a-mentor').value='';
+  document.getElementById('a-manager').value='';
+  document.getElementById('a-note').value='';
+  document.getElementById('addModal').classList.add('open');
+}
+function addPerson(){
+  const name=document.getElementById('a-name').value.trim();
+  if(!name){alert('氏名を入力してください');return;}
+  people.push({id:nextId++,name,date:document.getElementById('a-date').value,date1y:document.getElementById('a-date1y').value,retire:document.getElementById('a-retire').value,status:document.getElementById('a-status').value,tenure:document.getElementById('a-tenure').value,mentor:document.getElementById('a-mentor').value,manager:document.getElementById('a-manager').value,note:document.getElementById('a-note').value,records:{cc:[],ot:[],kpi:[],abs:[]}});
+  save(); closeModal('addModal'); renderAll();
+}
+function openEditById(id){
+  const p=people.find(x=>x.id===id); if(!p) return;
+  editingId=id;
+  document.getElementById('e-name').value=p.name;
+  document.getElementById('e-date').value=p.date||'';
+  document.getElementById('e-date1y').value=p.date1y||'';
+  document.getElementById('e-retire').value=p.retire||'';
+  document.getElementById('e-status').value=p.status;
+  document.getElementById('e-tenure').value=p.tenure||'';
+  document.getElementById('e-mentor').value=p.mentor||'';
+  document.getElementById('e-manager').value=p.manager||'';
+  document.getElementById('e-note').value=p.note||'';
+  document.getElementById('editModal').classList.add('open');
+}
+function openEditFromDetail(){ closeModal('detailModal'); openEditById(detailId); }
+function saveEdit(){
+  const p=people.find(x=>x.id===editingId); if(!p) return;
+  p.name=document.getElementById('e-name').value.trim()||p.name;
+  p.date=document.getElementById('e-date').value||p.date;
+  p.date1y=document.getElementById('e-date1y').value;
+  p.retire=document.getElementById('e-retire').value;
+  p.status=document.getElementById('e-status').value;
+  p.tenure=document.getElementById('e-tenure').value;
+  p.mentor=document.getElementById('e-mentor').value;
+  p.manager=document.getElementById('e-manager').value;
+  p.note=document.getElementById('e-note').value;
+  save(); closeModal('editModal'); renderAll();
+  if(detailId===editingId){ openDetail(detailId); }
+}
+function deletePerson(id){
+  if(!confirm('削除しますか？')) return;
+  people=people.filter(x=>x.id!==id);
+  save(); renderAll();
+}
+
+// ── Navigation ────────────────────────────────────────────────────
+const pageTitles={list:'入社者一覧',alerts:'アラート',stats:'離職率・統計'};
+
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  document.getElementById('pageTitle').textContent=pageTitles[name]||name;
+  if(name==='alerts') renderAlerts();
+  if(name==='stats') renderStats();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// ── CSV ───────────────────────────────────────────────────────────
+function exportCSV(){
+  const rows=[['氏名','入社日','退職日','在籍状況','在籍期間','メンター','部長','CC最新(年月)','CC最新スコア','残業最新(年月)','残業最新(h)','KPI最新(年月)','KPI達成率']];
+  people.forEach(p=>{
+    const cc=latestCC(p),ot=latestOT(p),kpi=latestKPI(p);
+    rows.push([p.name,p.date,p.retire||'',p.status,p.tenure||'',p.mentor||'',p.manager||'',cc?ymLabel(cc.ym):'',cc?cc.score:'',ot?ymLabel(ot.ym):'',ot?ot.v:'',kpi?ymLabel(kpi.ym):'',kpi?kpi.rate+'%':'']);
+  });
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`onboarding_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+function renderAll(){renderSummary();renderTable();}
+renderAll();
+</script>
+</body>
+</html>
