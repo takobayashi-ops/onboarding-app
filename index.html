@@ -145,7 +145,37 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
 .if-grid .fr input,.if-grid .fr select{padding:6px 8px;font-size:12px}
 </style>
 </head>
-<body>
+<body><script>
+(function(){
+  const PASS = 'gmoc1122';
+  const KEY = 'ob_auth';
+  if(sessionStorage.getItem(KEY) === '1') return;
+  document.body.style.display = 'none';
+  const overlay = document.createElement('div');
+  overlay.innerHTML = `
+    <div style="position:fixed;inset:0;background:#F7F6F2;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Noto Sans JP',sans-serif">
+      <div style="background:#fff;border:1px solid #E2DFD6;border-radius:12px;padding:40px 36px;width:340px;box-shadow:0 8px 32px rgba(0,0,0,0.08)">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.05em;margin-bottom:4px;color:#1A1916">Onboarding</div>
+        <div style="font-size:11px;color:#9B9890;font-family:'DM Mono',monospace;margin-bottom:28px">管理システム</div>
+        <div style="font-size:13px;font-weight:500;color:#1A1916;margin-bottom:10px">パスワードを入力してください</div>
+        <input id="pw-input" type="password" placeholder="Password"
+          style="width:100%;padding:10px 12px;border:1px solid #E2DFD6;border-radius:8px;font-size:14px;outline:none;margin-bottom:8px;box-sizing:border-box;font-family:'Noto Sans JP',sans-serif"
+          onkeydown="if(event.key==='Enter')document.getElementById('pw-btn').click()">
+        <div id="pw-err" style="font-size:12px;color:#C0392B;margin-bottom:8px;display:none">パスワードが違います</div>
+        <button id="pw-btn"
+          style="width:100%;padding:10px;background:#2D5A3D;color:#fff;border:none;border-radius:8px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;font-weight:500"
+          onclick="(function(){
+            const v=document.getElementById('pw-input').value;
+            if(v==='${PASS}'){sessionStorage.setItem('${KEY}','1');location.reload();}
+            else{document.getElementById('pw-err').style.display='block';document.getElementById('pw-input').value='';}
+          })()">ログイン</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.body.style.display = '';
+  setTimeout(()=>document.getElementById('pw-input').focus(),100);
+})();
+</script>
 <div class="app">
 <aside class="sidebar">
   <div class="logo"><h1>Onboarding</h1><span>管理システム</span></div>
@@ -160,11 +190,11 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
     <button class="nav-item" onclick="showPage('stats',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>離職率・統計
     </button>
-
+ 
   </nav>
   <div class="sb-foot"><div id="sbBadge" class="al-badge ok" onclick="showPage('alerts',document.querySelectorAll('.nav-item')[1])">✓ アラートなし</div></div>
 </aside>
-
+ 
 <div class="main">
   <div class="topbar">
     <h2 id="pageTitle">入社者一覧</h2>
@@ -195,7 +225,7 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
   </div>
 </div>
 </div>
-
+ 
 <!-- ADD MODAL -->
 <div class="mo" id="addModal">
 <div class="md">
@@ -217,7 +247,7 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
   <div class="md-ft"><button class="btn" onclick="closeModal('addModal')">キャンセル</button><button class="btn btn-primary" onclick="addPerson()">追加する</button></div>
 </div>
 </div>
-
+ 
 <!-- EDIT MODAL -->
 <div class="mo" id="editModal">
 <div class="md">
@@ -238,7 +268,7 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
   <div class="md-ft"><button class="btn" onclick="closeModal('editModal')">キャンセル</button><button class="btn btn-primary" onclick="saveEdit()">保存する</button></div>
 </div>
 </div>
-
+ 
 <!-- DETAIL MODAL -->
 <div class="mo" id="detailModal">
 <div class="md dmd">
@@ -252,16 +282,16 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
   <div class="md-bd" id="detailBody"></div>
 </div>
 </div>
-
+ 
 <script>
 // ── Data model ────────────────────────────────────────────────────
 // records: { cc: [{ym:'2025-06', score:[仕事,人間関係,組織,健康,推奨度]}, ...],
 //            ot: [{ym:'2025-06', value:30}, ...],
 //            kpi: [{ym:'2025-06', target:100000, actual:80000}, ...],
 //            abs: [{ym:'2025-06', absent:0, late:0}, ...] }
-
+ 
 const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-
+ 
 function nowYM() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
@@ -271,7 +301,7 @@ function ymLabel(ym) {
   return `${y}年${parseInt(m)}月`;
 }
 function sortYM(arr) { return [...arr].sort((a,b)=>a.ym<b.ym?-1:1); }
-
+ 
 function loadData() {
   const saved = localStorage.getItem('onboarding_v4');
   if (saved) return JSON.parse(saved);
@@ -302,14 +332,14 @@ function loadData() {
     {id:24,name:'下山 泰志',   date:'2026-05-01',date1y:'2027-05-01',retire:'',          status:'在籍',tenure:'0年1ヶ月', mentor:'',manager:'',note:'',records:{cc:[],ot:[],kpi:[],abs:[]}},
   ];
 }
-
+ 
 let people = loadData();
 let nextId = Math.max(...people.map(p=>p.id)) + 1;
 let editingId = null;
 let detailId = null;
-
+ 
 function save() { localStorage.setItem('onboarding_v4', JSON.stringify(people)); }
-
+ 
 // ── Record helpers ────────────────────────────────────────────────
 function latestRec(arr) { if(!arr||!arr.length) return null; return sortYM(arr).at(-1); }
 function latestCC(p) {
@@ -330,7 +360,7 @@ function latestKPI(p) {
   return {rate:r.rate, ym:r.ym};
 }
 function latestAbs(p) { const r=latestRec(p.records.abs); return r?{absent:r.absent,late:r.late,ym:r.ym}:null; }
-
+ 
 // ── Thresholds (fixed) ───────────────────────────────────────────
 const THRESHOLDS = {
   ccWarn: 15,      // 15点未満で要注意条件のひとつ
@@ -343,13 +373,13 @@ const THRESHOLDS = {
   riskAmber: 2.5,  // 離職懸念度2.5以上で要注意
   riskRed: 4.0,    // 離職懸念度4.0以上で緊急
 };
-
+ 
 // ── Alerts ────────────────────────────────────────────────────────
 function getAlerts(p) {
   const alerts=[];
   const T=THRESHOLDS;
   const cc=latestCC(p);
-
+ 
   // ── CC: 15点未満 OR 前回比下落 → 要注意、両方 → 緊急
   if(cc){
     const s=cc.score;
@@ -363,14 +393,14 @@ function getAlerts(p) {
     else if(dropped)
       alerts.push({type:'amber', msg:`CC前回比下落 (${prev}→${s}点)`});
   }
-
+ 
   // ── 残業: 40h以上→要注意、50h以上→緊急
   const ot=latestOT(p);
   if(ot){
     if(ot.v>=T.otRed)       alerts.push({type:'red',   msg:`残業超過 (${ot.v}h/月)`});
     else if(ot.v>=T.otAmber) alerts.push({type:'amber', msg:`残業増加傾向 (${ot.v}h/月)`});
   }
-
+ 
   // ── 勤怠: 直近月の欠勤+遅刻の累計
   const latAb=latestAbs(p);
   if(latAb){
@@ -378,7 +408,7 @@ function getAlerts(p) {
     if(total>=T.absRed)       alerts.push({type:'red',   msg:`勤怠悪化 欠勤${latAb.absent}+遅刻${latAb.late}=${total} (${ymLabel(latAb.ym)})`});
     else if(total>=T.absAmber) alerts.push({type:'amber', msg:`勤怠注意 欠勤${latAb.absent}+遅刻${latAb.late}=${total} (${ymLabel(latAb.ym)})`});
   }
-
+ 
   // ── 1on1: 最新の離職懸念度
   if(p.records.interviews&&p.records.interviews.length){
     const latest=sortYM(p.records.interviews).at(-1);
@@ -387,11 +417,11 @@ function getAlerts(p) {
       else if(latest.risk>=T.riskAmber) alerts.push({type:'amber', msg:`離職懸念度 注意 (★${latest.risk}/5、${ymLabel(latest.ym)})`});
     }
   }
-
+ 
   return alerts;
 }
 function alertLevel(p){const a=getAlerts(p);return a.some(x=>x.type==='red')?'red':a.some(x=>x.type==='amber')?'amber':'ok';}
-
+ 
 // ── Summary ───────────────────────────────────────────────────────
 function renderSummary(){
   const total=people.length,active=people.filter(p=>p.status==='在籍').length,retired=total-active;
@@ -407,7 +437,7 @@ function renderSummary(){
   badge.className='al-badge'+(n?'':' ok');
   badge.textContent=n?`⚠ アラート ${n}件`:'✓ アラートなし';
 }
-
+ 
 // ── Table ─────────────────────────────────────────────────────────
 function renderTable(){
   const q=(document.getElementById('srch').value||'').toLowerCase();
@@ -443,7 +473,7 @@ function renderTable(){
       </td></tr>`;
   }).join('');
 }
-
+ 
 // ── Alerts page ───────────────────────────────────────────────────
 function renderAlerts(){
   const items=[];
@@ -457,7 +487,7 @@ function renderAlerts(){
   if(ambers.length) h+=`<div style="font-size:11px;font-weight:700;color:var(--amber);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">要注意 (${ambers.length}件)</div><div class="alf-list">${ambers.map(row).join('')}</div>`;
   el.innerHTML=h;
 }
-
+ 
 // ── Stats page ────────────────────────────────────────────────────
 let statsYear=new Date().getFullYear();
 function renderStats(){
@@ -469,7 +499,7 @@ function renderStats(){
   if(!years.length) years.push(new Date().getFullYear());
   if(!years.includes(statsYear)) statsYear=years.at(-1);
   const yr=statsYear;
-
+ 
   // 月ごとの入社者と、その人が今も在籍しているか
   const monthData=Array.from({length:12},(_,m)=>{
     const joinedThisMonth=people.filter(p=>{
@@ -481,11 +511,11 @@ function renderStats(){
     const retired=joinedThisMonth.filter(p=>p.status==='退職').length;
     return {joined:joinedThisMonth.length,active,retired};
   });
-
+ 
   const totalJoined=monthData.reduce((a,d)=>a+d.joined,0);
   const totalRetired=monthData.reduce((a,d)=>a+d.retired,0);
   const rate=totalJoined>0?(totalRetired/totalJoined*100).toFixed(1):'0.0';
-
+ 
   const maxBar=Math.max(...monthData.map(d=>d.joined),1);
   const barHtml=monthData.map((d,i)=>{
     const hJ=Math.round((d.joined/maxBar)*72)+(d.joined>0?4:0);
@@ -501,9 +531,9 @@ function renderStats(){
       ${d.joined>0?`<div style="font-size:9px;font-family:var(--mono);color:var(--text3)">${d.joined}名</div>`:''}
     </div>`;
   }).join('');
-
+ 
   const yearTabs=years.map(y=>`<button class="ptab${y===yr?' active':''}" onclick="statsYear=${y};renderStats()">${y}年</button>`).join('');
-
+ 
   const detailRows=people.filter(p=>p.date&&new Date(p.date).getFullYear()===yr).map(p=>{
     const m=new Date(p.date).getMonth();
     return `<tr><td style="font-weight:500">${p.name}</td>
@@ -513,7 +543,7 @@ function renderStats(){
       <td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
     </tr>`;
   }).join('')||`<tr><td colspan="5"><div class="empty">該当者なし</div></td></tr>`;
-
+ 
   document.getElementById('statsContent').innerHTML=`
     <div class="ptabs">${yearTabs}</div>
     <div style="margin-bottom:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text2)">
@@ -539,7 +569,7 @@ function renderStats(){
       <tbody>${detailRows}</tbody>
     </table></div>`;
 }
-
+ 
 // ── Detail modal ──────────────────────────────────────────────────
 function openDetail(id){
   const p=people.find(x=>x.id===id); if(!p) return;
@@ -548,11 +578,11 @@ function openDetail(id){
   renderDetailBody(p);
   document.getElementById('detailModal').classList.add('open');
 }
-
+ 
 function renderDetailBody(p){
   const alerts=getAlerts(p);
   const cc=latestCC(p), ot=latestOT(p), kpi=latestKPI(p);
-
+ 
   // chart helpers
   const makeChart=(items,maxVal,colorFn,valFn,titleFn)=>{
     if(!items||!items.length) return `<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>`;
@@ -564,10 +594,10 @@ function renderDetailBody(p){
     }).join('')}</div>
     <div class="mlabs">${sorted.map(r=>`<span>${r.ym.slice(0,4)==new Date().getFullYear()?MONTHS[parseInt(r.ym.slice(5))-1]:r.ym.replace('-','年').replace(/^(\d{4})年(\d+)$/,'$1/$2')}</span>`).join('')}</div>`;
   };
-
+ 
   const ccChart=makeChart(p.records.cc,30,v=>v<=15?'var(--red)':v<=20?'#E9A420':'var(--accent)',r=>r.score.reduce((a,b)=>a+b,0),r=>`${ymLabel(r.ym)}: ${r.score.reduce((a,b)=>a+b,0)}点`);
   const otChart=makeChart(p.records.ot,0,v=>v>=45?'var(--red)':v>=30?'#E9A420':'var(--blue)',r=>r.value,r=>`${ymLabel(r.ym)}: ${parseFloat(r.value).toFixed(1)}h`);
-
+ 
   // KPI chart with 100% line
   let kpiChart='<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>';
   if(p.records.kpi&&p.records.kpi.some(r=>r.rate!=null)){
@@ -585,7 +615,7 @@ function renderDetailBody(p){
     <div class="mlabs">${sorted.map(r=>`<span>${MONTHS[parseInt(r.ym.slice(5))-1]}</span>`).join('')}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${sorted.map((r,i)=>`<div style="background:var(--surface2);border-radius:var(--r);padding:5px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)} </span><span style="font-weight:500">${rates[i].toFixed(1)}%</span></div>`).join('')}</div>`;
   }
-
+ 
   // Abs chart
   let absChart='<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>';
   if(p.records.abs&&p.records.abs.length){
@@ -599,11 +629,11 @@ function renderDetailBody(p){
     <div class="mlabs">${sorted.map(r=>'<span>'+ymLabel(r.ym).replace(/\d{4}年/,'')+'</span>').join('')}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${sorted.filter(r=>r.absent>0||r.late>0).map(r=>'<div style="background:var(--surface2);border-radius:var(--r);padding:5px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">'+ymLabel(r.ym)+' </span><span style="font-weight:500">欠勤'+r.absent+'日 遅刻'+r.late+'回</span></div>').join('')}</div>`;
   }
-
+ 
   const alertHTML=alerts.length
     ?alerts.map(a=>`<div class="al-item ${a.type}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${a.msg}</div>`).join('')
     :`<div class="al-item ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>アラートなし</div>`;
-
+ 
   document.getElementById('detailBody').innerHTML=`
     <div class="di-grid">
       <div class="di-box"><div class="dl">入社日</div><div class="dv" style="font-family:var(--mono);font-size:13px">${p.date||'—'}</div></div>
@@ -613,17 +643,17 @@ function renderDetailBody(p){
       <div class="di-box"><div class="dl">部長</div><div class="dv" style="font-size:13px">${p.manager||'—'}</div></div>
       <div class="di-box"><div class="dl">退職日</div><div class="dv" style="font-family:var(--mono);font-size:13px">${p.retire||'—'}</div></div>
     </div>
-
+ 
     <div style="margin-bottom:20px">
       <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">アラート状況</div>
       <div class="al-list">${alertHTML}</div>
     </div>
-
+ 
     <div class="cs"><h4>CCスコア推移（/30点）</h4>${ccChart}</div>
     <div class="cs"><h4>残業時間推移（h/月）</h4>${otChart}</div>
     <div class="cs"><h4>営業成績 KPI達成率（%）</h4>${kpiChart}</div>
     <div class="cs"><h4>勤怠状況（欠勤・遅刻）</h4>${absChart}</div>
-
+ 
     ${(p.records.interviews&&p.records.interviews.length)?`
     <div style="margin-bottom:20px">
       <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">1on1 面談分析履歴</div>
@@ -658,9 +688,9 @@ function renderDetailBody(p){
         </div>`;
       }).join('')}</div>
     </div>`:''}
-
+ 
     ${p.note?`<div style="margin-bottom:20px;padding:10px 14px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text2)"><span style="font-size:10px;font-weight:700;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-right:8px">備考</span>${p.note}</div>`:''}
-
+ 
     <div style="border-top:1px solid var(--border);padding-top:16px">
       <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">月次データを追加</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -670,7 +700,7 @@ function renderDetailBody(p){
         <button class="add-rec-btn" onclick="toggleInlineForm('absForm')">＋ 勤怠（欠勤・遅刻）を追加</button>
         <button class="add-rec-btn" onclick="toggleInlineForm('oneOnOneForm')" style="grid-column:1/-1;border-color:var(--accent);color:var(--accent)">✦ 1on1面談テキストをAI分析する</button>
       </div>
-
+ 
       <div class="inline-form" id="ccForm">
         <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">コンディションチェック（各5点満点、推奨度10点満点）</div>
         <div class="if-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;">
@@ -683,7 +713,7 @@ function renderDetailBody(p){
         </div>
         <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveCC()">追加</button><button class="btn" onclick="toggleInlineForm('ccForm')">閉じる</button></div>
       </div>
-
+ 
       <div class="inline-form" id="otForm">
         <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">残業時間</div>
         <div class="if-grid" style="grid-template-columns:1fr 1fr;">
@@ -692,7 +722,7 @@ function renderDetailBody(p){
         </div>
         <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveOT()">追加</button><button class="btn" onclick="toggleInlineForm('otForm')">閉じる</button></div>
       </div>
-
+ 
       <div class="inline-form" id="kpiForm">
         <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">営業成績（KPI達成率）</div>
         <div class="if-grid" style="grid-template-columns:1fr 1fr;">
@@ -701,7 +731,7 @@ function renderDetailBody(p){
         </div>
         <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveKPI()">追加</button><button class="btn" onclick="toggleInlineForm('kpiForm')">閉じる</button></div>
       </div>
-
+ 
       <div class="inline-form" id="absForm">
         <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2)">勤怠（欠勤・遅刻）</div>
         <div class="if-grid" style="grid-template-columns:1fr 1fr 1fr;">
@@ -711,7 +741,7 @@ function renderDetailBody(p){
         </div>
         <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveAbs()">追加</button><button class="btn" onclick="toggleInlineForm('absForm')">閉じる</button></div>
       </div>
-
+ 
       <div class="inline-form" id="oneOnOneForm">
         <div style="font-size:11px;font-weight:700;margin-bottom:4px;color:var(--text2)">1on1 面談テキストをAI分析</div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:10px">ZoomやGoogle Meetの文字起こしをそのままペーストしてください</div>
@@ -731,7 +761,7 @@ function renderDetailBody(p){
     </div>
     ${p.note?`<div style="margin-top:16px;padding:12px;background:var(--surface2);border-radius:var(--r);font-size:13px;color:var(--text2)">${p.note}</div>`:''}`;
 }
-
+ 
 function analyzeInterview(){
   const p=people.find(x=>x.id===detailId); if(!p) return;
   const date=document.getElementById('oo-date').value;
@@ -752,7 +782,7 @@ function analyzeInterview(){
   "riskReason": "離職懸念度の根拠を1文で",
   "actions": ["フォロー施策案を箇条書きで3点以内"]
 }
-
+ 
 面談記録：
 ${text}`;
   fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})})
@@ -794,7 +824,7 @@ ${text}`;
     document.getElementById('oo-save-btn').addEventListener('click',()=>saveInterview(ym,date,interviewer,result));
   }).catch(()=>{resultEl.innerHTML=`<div style="padding:12px;background:var(--red-light);border-radius:var(--r);font-size:12px;color:var(--red)">通信エラーが発生しました。</div>`;});
 }
-
+ 
 function saveInterview(ym,date,interviewer,result){
   const p=people.find(x=>x.id===detailId); if(!p) return;
   if(!p.records.interviews) p.records.interviews=[];
@@ -802,12 +832,12 @@ function saveInterview(ym,date,interviewer,result){
   p.records.interviews.push({ym,date,interviewer,...result});
   save(); renderDetailBody(p);
 }
-
+ 
 function toggleInlineForm(id){
   document.querySelectorAll('.inline-form').forEach(f=>{if(f.id!==id)f.classList.remove('open');});
   document.getElementById(id).classList.toggle('open');
 }
-
+ 
 // ── Record save handlers ──────────────────────────────────────────
 function saveCC(){
   const p=people.find(x=>x.id===detailId); if(!p) return;
@@ -850,7 +880,7 @@ function saveAbs(){
   save(); renderDetailBody(p); renderAll();
   document.getElementById('absForm').classList.remove('open');
 }
-
+ 
 // ── Add / Edit / Delete ───────────────────────────────────────────
 function openAdd(){
   document.getElementById('a-name').value='';
@@ -904,10 +934,10 @@ function deletePerson(id){
   people=people.filter(x=>x.id!==id);
   save(); renderAll();
 }
-
+ 
 // ── Navigation ────────────────────────────────────────────────────
 const pageTitles={list:'入社者一覧',alerts:'アラート',stats:'離職率・統計'};
-
+ 
 function showPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -919,7 +949,7 @@ function showPage(name,btn){
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
-
+ 
 // ── CSV ───────────────────────────────────────────────────────────
 function exportCSV(){
   const rows=[['氏名','入社日','退職日','在籍状況','在籍期間','メンター','部長','CC最新(年月)','CC最新スコア','残業最新(年月)','残業最新(h)','KPI最新(年月)','KPI達成率']];
@@ -933,10 +963,11 @@ function exportCSV(){
   a.download=`onboarding_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
-
+ 
 // ── Init ──────────────────────────────────────────────────────────
 function renderAll(){renderSummary();renderTable();}
 renderAll();
 </script>
 </body>
 </html>
+ 
