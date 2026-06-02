@@ -172,7 +172,7 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
         <thead><tr>
           <th style="width:90px">状態</th><th style="width:180px">氏名</th><th style="width:90px">入社日</th><th style="width:60px">在籍</th><th style="width:80px">期間</th>
           <th>メンター</th><th>部長</th>
-          <th style="width:110px">CC最新</th><th style="width:110px">残業(最新)</th><th style="width:110px">KPI(最新)</th><th style="width:110px">勤怠(最新)</th><th style="width:60px"></th>
+          <th style="width:110px">CC最新</th><th style="width:110px">残業(最新)</th><th style="width:110px">KPI(最新)</th><th style="width:110px">勤怠(最新)</th><th style="width:90px">離職懸念度</th><th style="width:60px"></th>
         </tr></thead>
         <tbody id="tBody"></tbody>
       </table></div>
@@ -227,7 +227,7 @@ tbody td{padding:11px 14px;font-size:13px;color:var(--text);white-space:nowrap;o
 </div></div>
 <script>
 document.getElementById('gmo-logo').src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGoAAAAcCAYAAACJWipLAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAUr0lEQVR42q2ae7yeVXXnv2vv/byX855rTi4QkpAQAlFAiAG5QwUBYYwdUalKq3Ys40w7xVpE6gCjo4MitGqdTplRcWqhnVExYCuXEAU6ck0g4RIIt9wgJCfJSXJybu/lefZa/eN5cpKTG0mY9/M5n3N73/3svdbaa/3W77fEzIzDfBkgYz+BFb/tfMk+3nn4T2KPNRQQDDn0ld/pdsYWMcDxdgaUtz3L278C7/ilGIbhENM9tiQgNmZMeUcmMVzxPX+WIZIb6pBWNlAiYoLgDntTY6FpBmZj64wP2TwiTDyCFX89rNBCDudGmYGaYab5gwsvOPzYJnKDgpqiFhEc3nmcHPom8y0a0SiOq+ACDsFZBPEHbd4sRgRf7Ntwzh+Wo6Ip0RSz/DxBBC+CCYUNNLcTgho4MxADcTg5dFcdkqNUc+N7Jwcwhe1xsfd+b6aGE8HJwToq5iuNOcQwjYjzhxSfZobI4SfknQHqhHHrFK4r0qCMJTe3nwykmr/HuYPf+16OUsAV+X/n7jIDJ27MsMONJsvfGGDZ6gFeenMbq7eMMDCaoppgpkjuTUJQpncmHHdkjROPmcKpsyZw3JSOXUfLDPPgZZdD97lxU0YVbrjzSV7d1OT4qVW+deXpJNbCXILbj0l2D52oEJzwt4tWcN/yrXRUHbd8eh7Te9pR0+Kmyz7SugNVUhNKftf/Nw4M88zqrSxZM8Rrb23nrW116hlYBFUw7wii1MowbWKVE6Z2MO+YScyb1cOUjrZdNoiK8yA4IuDNYB9ZJ+xd+DQ/GIKzPN0kzmEGi1e8xU8fXcfDL25idf8wNEMRNgmoABloWuTB/H9LANTAXqbaUeXkWZP43fdO5ONnzmD25M5isxHn911r8gh2vLK+n+/e8yq4Cvc26hw7tYf/eMHxZDHydtlLtUVwZZau2cwXfvQsWZbAaIsPnDSRz13wLqIazss+XOzQGBHvKWFsGx7l7qVv8fOn1rPk9a1sH2hCDOBdbtyYFhgngKR5SpYAtgNsA/iVTO72nDW3l4+eOZMPz59OZ7lUXIYML5CKJ+zDEnunPotk4iG2CN4DnnuefoO//OVKHnu5H1KBapWkJKSZQqMBLtLVUaO3vUKtkqBqDI6MsmV4lMZo7jRfLWEYOjoKWaSzp8pnzzySP/vIicya1IVqzDHcHuksquGd8N9++Txf/cmLlLtrtJoZE8p1ltyygKN7O3N4sZ/al6erlIjjd776AE+8PEpHe8LoUORDZ/Ryz5fOp6lGyeU3avdVsiwlhITBRou/vn8lP3rwNd7oa4IrQ8UTQiBrNKHVIFSFCZ0lJtQqlEKg0VIGhkfYPJxBS6CUEMoJWZpBvQkizJlW5gsfnM3nLj6RivfE2EBceZ9n2ctRBmSqJC7jzYHIn//vJdz16BsgAdfWRfBN0laKjWTMmNbOR047iovfM5Hjp3czsb1KOfEYxkgz463+EZ5etYVfPr2BRc9toVVXSu1VnHOkWYtYbzKlu5NvfvI4/t2Fx4MpCGiRzGwnShPj7P+6mKde2IZrK+OJpEOjfOS86Sz84vuJqni37/SXRSV4xy33vcR1P1iO727DMrCodLXDir+8hKld7ag2cyPtVo+dEx584U2u+fHTrFjdhLYq5dDEeU991MBanP7uiVx+2jTOmzuBmVO66KokeOdoamRwpMlrfcM8umITC5euZfnrwxAqlKueTI3YSKGVceq7erjtqvmcesxksiwSgn97R8WY4X1g+fodXHHzYl5f38J3dyKxjifSbEJXNXD95cfxuYuOY0Jb5e1bHmDZuq3c9LPlLHx8M5jP06QvQWzByBBXXjab73/+fHoqHiuQkWqGc4FX+gY45csP0NASIiAacb5ENlLnp9eeyhVnHEuWKRIkB+sGiBINPMLLfUO87y8eYCQLmAMzR3BGNjzKndeexZVnHkMrtgg+QYpUHHzgfyxeyRd+8BTRdZJUHRoVEU82PMKpc9r52idO4dJ5M3arkLt6qz3hSqrK3U+u4cb/+yyvrm9RqQVarkYwpTUyTEcZbr/6fXz8jGPI1Ah7IK1xjlLLkf6qzUO8/6uLWd8fSdrLZGlEvEObjuOPUP7PNecyb0ZvDpljvhcRGV8DCyi9s8VwLoeqdy1Zw5YdKYnLUZhzoBIYGKxzxZlHMWtyV25gcbRiRskHbnvwJf74tmWEzjaymOOqgJLFhKO7Up66dQGTaiVScSRFuxBxqCrOOf7Ntx5k0ZKtuK4ymuXH9d6hQw2uvGAad/ync0k1EgRSc5SccPvDL/NHf/0kvr0TcwGX5TepNdLgDz4wjduuOotaEjDLyCwPLIeMD1DLzxiBRPL/9Y00uOpvHuNXT/WTtEOqCT5xxGYktEZZ+J8vYMF7jyIWqNYV8G7MUVYkdDXlwpt+w78s20K5q4tWlhEsJdOE6bXIr795EXMmd1LPIhUHskclV7PxuLcIg9QUIVLypQPgM80LuxPEhBZGWYxLv/1bHliyiVKbkKmgLuC1gYQq2Y6Mz186lf/5+bNIY0biHCoOzVqEUOL2R17hj76/nNBRIYtxLMqd5Lhn6oSEFX91CT3VEmk0gnc8/+Y2zv7Kg4xaG+IN1UhwkA1nfOTcI1j4xfMwU6Iqwe1saA/YdeUlJULiHfUIH/jGIh5/cQjfVoZsCAsdWCMypaPJk7cuYEZ3lYgQUBC/69aqKiLCPc+s5V+W91PqqJJmLYQU9SWsMczXf38ucyZ30kpTykGwPZxkVvRHToo+qfjZCWXvD+gkSBEcwXkcDtWUsgjrto/y+Cvb8CXIqOQMhwnqKmiW4rscP1y8jvtXbCDxgWgZaoZ3jjXbR7jhjmfx5fx2CSDi2AlEQwIbNtd54pUtOd4tAM03F77AyIgQvGIxwxHJIhw50fG3fzgfM8hM8D4chJN2dlSOxDsyVapeuO2q02gvKxpTkDZc2iCpePq2ZHzvVysQcQWh4MfD85145x8e3YCYEcWjKB4jpjBregf/9qw5mBlJCMVnxl8dEXi1bxuDzUiQHLvZfvP3eC4sRRAxLIvMmtxJVzUBhIdX9DG4vUHoKBM1yyGv5s2KJAmooknguh8t5ZybL6GtVAJTxAW+fOdT9G0zQqeHTFERiA7nUgyHEwfRuP/p9Vx2yjRKIfDWYJ0Hn9+EVB1RczbBOY8ON7n8wlkc0V0jizFvWQ66Yd7F1wTnyGLGe47q5aJTpnD3E5ugVkZN8mCqlPnnZzbyjU+2aA8JWpSOXY4qCsyb/cNYKIMaYor4EoyO8u4Z0+gqlcbQ0J6MhXPC39z/LNf93bPUkw68jmD4vYjaPWsYhTvFBO89rcEhvvMnZ/HFD74byLj/mU0gUjB9CgrdlUilXGXz9joknlAq8cKaHXzjFyu45cpTAfj50+u566E3SToSUhVES3RXmpQrwuYdDnE5tUNJuP/FrYy2WrSVSqzuG2ZgRHCJx1QxyYlfzJg/ZwpmhqEHeZP2Tc9q0TbMn9PL3Y9tRESJ4hGLWPBs2Naib2udY6eUdqXq/VOguy1uRsmPB3X7Yod/8ugmRuudOISMTiJtqFVRqiht479LFfM1zFVRXyMmVTS0IaGdNG0B0DdY55GVO6CcoKY5ddXMmH/sRG7/4/loloIYkqW4rh6+/0+rWLp2C40scu2Pl+ISyYGJF2xokBs+fhyfvWAaNlxHvCeaEhLHqg11lry+NU/AacwtuRd0Ncq+IHHfIfO+0+zBa+4xk3Fw2dTI1PZKnrsRn9BbKyGaIgImDiyFpMKqjYOkBUe3k7uwPRD5ly6bw4wpSm8lY2ItZUItjn31trXoqWX0tjWZ0BbpbAOxFBEFiXiLiEbMCTMn5TTT4yu3srl/kMTnzIgU3f9pszu57KSpXH7ONOKQYsHhrUkzc1x3xzKu/runWbehjlQTkIDWm8w+to2rLz2B84/rhVDwfhjOJdCoc+/ytwCY1ttOraKoORC3i3QGVq7vR5CcWz0sdcgKo+drvrx+BMQVfnd50GlkQnuJKd2VccESxjtK+N35R7JoST+BiKGoOlzZ8dLqAX770nouOHE6rZiReBmrUTtT4e+dfQwXzTuKkWar6K7HHyaKoFmkuxS48ranuO/JPnx721ihj2mTib1lzpt7JAD3Ll8PmrddEg1VgRJccNJUzODmK0/moed+w2CzOGct4eEXd/DwCwNIR4UYjSBKFiO3fOa9JOKYN+sIJk6u0b8jI/GG4qHsWbRiE1/PIsdOaef02T089MIAvs3nKFMVSiV+8cQarr/8PZScI0MOWiOyMdJWiCp4cWwcHGXRM29Cm8c0J3S9E7JGi/PPmkJPtUSmEe8csnvqcz4vjp86dw5zZlRoNiLeJ3nzSSSTCtfd8SxDaaTsHVncm/lVzZjQVmZ6TwdHdbdzVHfHuK8ju2rM7O3isVWDPPTMZlytltcJU7wPaF3500tmckR3G0P1BotX7oDE5YSFODQ1jp5c49TZk1DLmDOpmxs/PhcdbSG+hMQMSRKkHDAzvHdkIy0+du40Lp83jVaWckRnhTOP7YVmE3EJ0SJSrvLyuiFWrNuME+GaD8+F2ARyWKwGvhJYubbF1xeuwDmPxTRvRQ4q1eUgKlPLs4gTvvKPy9i41fDBEyG/GDFQLinXLDh+N1FUx6c+KXqgrraE//X500ikRZYaLhgxOnzV8fTrLT7xvd8y0DRK3hOjETVvagHMhUKnMlSNTJU0Ks0sohpJEBa/sJ5PfvdRGq6cR5lFkiShuWOY8+ZP4ksfPhEzeOr1ft7cOEwoeVDDS4BmnXPm9tJTTlBLyVT5k4vncsbcEnG0jnjBLLKTgLZM6eoUbv7UKZgJsTjrB98zJb+pAqYR74S0Dr95vg+Ay+ZN5+rLjyPbPkQIHhHQGAm1Mt/6xev89/ufJwkJToQs6pj8sz+uMaqRKSRO8D7hhp8u5SeL1uE7qmhmiAuYT4iD2/j6H5zI/JmTUc0KWkz2lky8QJa1eP8JR/H3f3YO5ThEHG0SEgfaIqkJ9z2+gQtuvJdHXlyP9/l1FcmdrJrrRKoRBbzLe4dy8AynyrcWLmPBt59kqOkIIS1qhKe1bQdnnNjBz794NlWfG/neZ/ug1cC5pIgqA1IuOnlakUZLiEXKwfPtT5+Gc3mjnWtWgnMBHa5z/UfnMrsgfcs+rznnnTCFckdClrVyTlEjBM/dz+0AlEyVv/r99/GZBXNobR9ETPE+IYrHJ8LVt7/AVbc9ytr+YYJ3Y7qSqaGqZFGLAM4QKezghJc2DvOxW3/NTT99nVBrh9gkhDKWNYk7hrj2ypP58odOJsaIjDW5bv+kbIxK8MLil/v409uW8sraOrQ7Kg7MJTTrhpMRLp1/FJ8872h+Z85EpvbU9mIpGs0Wr24c4J+X9fH3/28Nr64bQmo1Sj5XSLN6Lgt85qIZfPez8+kpB6JBavDev7iflW8M48tV0AYaE6oVY8WtFzFrYufYrUnVSJzw73/wBD+8by1t3VWiGK2RFifN7OTJmy6m5HOKJ7dmJCKcfv39LHt9BFcJmBpmQsVnPHfzRcyZ2oOq4h18+59e4Gs/e5XGaIqvJTiX17U43GLChDKfOns6V5w+lROP7qVnT96TyKahJstWb+dnT77BwsfWMjgsJB2VnH5T0OFRero83/n0SXz2ghPIouK9OwiZg4ji0axJCCUG6k1uveclfvjgOrZsb0LJ4asJHmjVm6BKb1eVo4+sMb0noaOtgkalf2iYtVtavLGxQaOpUE2oJI5GK4VmnoTOPK6Lr3zsBBbMnwGkpKmRJCWWrNrEOTc8jCZVzIwQMrJB45yTJvLI184Hk7G+L5rhMDbvqHPClxaxddMIlNsgDvHrb3yAC0+cNiaVgJJGI/Gea+9cxncWvobvLBFjzr5nQ02+9x/mcfXFx5PGFI/gfODZNf3ceNcK7n1mE9ZUKCdUy4FGVKw+CkmJmROrzJxcYXJXlUoSGG216Ns+wqpNDTZub0IGpWoZArQaDWhBqQpXnD6V639vPnOntNOKOd/o3N7a3D5ulBZNmQNNiwMG3uwf5I7fruWuJ9fw3BvDaEPAJQVuVMhcIRDuJhyG4uZqQXSJ0N3tufBdvVx53hwWnDqV4DwxKjgwFYIXvvKPS7n5H16BzmohzSYwMMLXPvduvvrReWSZEsKYIEGqSuIC9yxdzS+XrKbkhOOPnsSfX3YC0Rx+jC1WGqpUXOCB59Zz6X95CNpquSTrBEZTzj11Ao/ceEnObgi0FMouT5lPvLyJHz+ylgee28D6/iHIPLgKJJKnolaaSzW4ImM58Al4zdmUVCBJOeaIGh+afyR/eP4xnDJzIgAtNRKXK8qOg9Sjdid+1IqC60Pxu/LMmq08urKPJau28srGOpsHmow2G8TdAKsgBIGuds+M3honzejk7OMnc+bcyczoqY0FharhpRD/zYgIn/jub1j22iBJNeTnxqOxxZ3XnMMZsybtxY7kn9UxHm/X3veU2I3MjCBC/2iLBTc9wKYdEEKOeE2VzkrkVzd8kKmdbWOfjwVYCIXmtW20yeOrtvL4S308u2Yrqzc32To8QpYpRoIREBQhoxSMCd1tzJ7cwfxZXZw3dxJnzJ5MrZLznhpj3ks52QctdxjDLblSqni3kyiUsamCbcMNRloZUQXVfIDEOyh7o72tSkfJjzNWVIqDy7jRELGIxCbDWsrnM6yQTiwjk0BnEQf7o2/UDNPioLLvIRwtVGxnTUatjMVdDa1ZPoLQ5lKcT8az1gcY7mlkkYGROs3MiLEwtRiJM0qJp6vWRmUPqT9q/tyDnco65HExszzytOBXg9v/vM1OOkotzy6CIk6QvQyd82cRjyPupu/KrjVyTmAvufyQmQFTVHzurDEjyW4Teew2fbd/eT+aoqYEkYMYOTNSzWcJdxIEhzo2d4iO2p0Bz40HipihOzPrbgqvFrSsiRtnYNnfMGPB12NFXzJmP8VZPsuXP/2duConm1Xy2b499G2EiEjpgONu7MGGmu2pbNv4MdR8DhUTh1muEhxquB2Go/YmKw88omvj+nM54JSx7XcgmoNa5VDP8f/rOQd+r41pCHLY49T/Cvc2aAurNpPuAAAAAElFTkSuQmCC';
-
+ 
 // ── Data ──────────────────────────────────────────────────────────
 const MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 function nowYM(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
@@ -267,14 +267,14 @@ let people=loadData();
 let nextId=Math.max(...people.map(p=>p.id))+1;
 let editingId=null,detailId=null;
 function save(){localStorage.setItem('onboarding_v4',JSON.stringify(people));}
-
+ 
 function latestRec(arr){if(!arr||!arr.length)return null;return sortYM(arr).at(-1);}
 function latestCC(p){const r=latestRec(p.records.cc);if(!r)return null;const s=r.score.reduce((a,b)=>a+b,0);return{score:s,ym:r.ym,detail:r.score};}
 function prevCC(p,curYM){const sorted=sortYM(p.records.cc).filter(r=>r.ym<curYM);if(!sorted.length)return null;return sorted.at(-1).score.reduce((a,b)=>a+b,0);}
 function latestOT(p){const r=latestRec(p.records.ot);return r?{v:r.value,ym:r.ym}:null;}
 function latestKPI(p){const r=latestRec(p.records.kpi);if(!r||r.rate==null)return null;return{rate:r.rate,ym:r.ym};}
 function latestAbs(p){const r=latestRec(p.records.abs);return r?{absent:r.absent,late:r.late,ym:r.ym}:null;}
-
+ 
 const THRESHOLDS={ccWarn:15,otAmber:40,otRed:50,absAmber:3,absRed:5,riskAmber:2.5,riskRed:4.0,kpiRed:70,kpiAmber:90};
 function getAlerts(p){
   const alerts=[],T=THRESHOLDS,cc=latestCC(p);
@@ -285,7 +285,7 @@ function getAlerts(p){
   return alerts;
 }
 function alertLevel(p){const a=getAlerts(p);return a.some(x=>x.type==='red')?'red':a.some(x=>x.type==='amber')?'amber':'ok';}
-
+ 
 function renderSummary(){
   const total=people.length,active=people.filter(p=>p.status==='在籍').length,retired=total-active;
   const reds=people.filter(p=>alertLevel(p)==='red').length,ambers=people.filter(p=>alertLevel(p)==='amber').length;
@@ -307,7 +307,7 @@ function renderSummary(){
   const n=reds+ambers,badge=document.getElementById('sbBadge');
   badge.className='al-badge'+(n?'':' ok');badge.textContent=n?`⚠ アラート ${n}件`:'✓ アラートなし';
 }
-
+ 
 function renderTable(){
   const q=(document.getElementById('srch').value||'').toLowerCase();
   const fs=document.getElementById('fltStatus').value,fa=document.getElementById('fltAlert').value;
@@ -348,13 +348,17 @@ function renderTable(){
     const kpiB=kpi?`<div class="metric-cell"><div class="metric-val" style="color:${kpiCol}">${typeof kpi.rate==='number'?kpi.rate.toFixed(1):kpi.rate}<span style="font-size:10px;color:var(--text3)">%</span></div><div class="metric-sub">${ymLabel(kpi.ym)}</div></div>`:`<span style="font-size:12px;color:var(--text3)">—</span>`;
     const ab=latestAbs(p),abIssue=ab&&(ab.absent>0||ab.late>0);
     const abB=ab?`<div class="metric-cell"><div class="metric-val" style="color:${abIssue?'var(--amber)':'var(--text)'}">欠${ab.absent} 遅${ab.late}</div><div class="metric-sub">${ymLabel(ab.ym)}</div></div>`:`<span style="font-size:12px;color:var(--text3)">—</span>`;
+    const latestIv=p.records.interviews&&p.records.interviews.length?sortYM(p.records.interviews).at(-1):null;
+    const riskB=latestIv&&latestIv.risk!=null
+      ?`<div class="metric-cell"><div class="metric-val" style="color:${latestIv.risk>=4?'var(--red)':latestIv.risk>=3?'var(--amber)':'var(--green)'}">★${latestIv.risk}<span style="font-size:10px;color:var(--text3)">/5</span></div><div class="metric-sub">${latestIv.date||ymLabel(latestIv.ym)}</div></div>`
+      :`<span style="font-size:12px;color:var(--text3)">—</span>`;
     const retiredStyle=isRetired?'opacity:0.42;filter:grayscale(0.4)':'';
     _rows.push(`<tr class="${al==='red'?'al-red':al==='amber'?'al-amber':''}" onclick="openDetail(${p.id})" style="${retiredStyle}">
       <td>${alIcon}</td><td>${nameCell}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--text2)">${p.date||'—'}</td>
       <td>${stB}</td><td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
       <td style="font-size:12px;color:var(--text2)">${p.mentor||'—'}</td><td style="font-size:12px;color:var(--text2)">${p.manager||'—'}</td>
-      <td>${ccB}</td><td>${otB}</td><td>${kpiB}</td><td>${abB}</td>
+      <td>${ccB}</td><td>${otB}</td><td>${kpiB}</td><td>${abB}</td><td>${riskB}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap">
         <button class="ib" onclick="openEditById(${p.id})" title="編集"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
         <button class="ib del" onclick="deletePerson(${p.id})" title="削除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
@@ -362,19 +366,34 @@ function renderTable(){
   });
   tb.innerHTML=_rows.join('');
 }
-
+ 
 function renderAlerts(){
   const items=[];people.forEach(p=>getAlerts(p).forEach(a=>items.push({...a,name:p.name,id:p.id})));
   const el=document.getElementById('alertsContent');
   if(!items.length){el.innerHTML=`<div class="empty" style="padding:64px">現在アラートはありません 🎉</div>`;return;}
   const reds=items.filter(i=>i.type==='red'),ambers=items.filter(i=>i.type==='amber');
-  const row=a=>`<div class="alf-item ${a.type}" onclick="openDetail(${a.id})"><div class="al-dot ${a.type}"></div><div class="aln">${a.name}</div><div class="alm">${a.msg}</div><div class="alch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>`;
+  // 個人ごとにアラートをまとめる
+  const byPerson={};
+  items.forEach(a=>{
+    if(!byPerson[a.id])byPerson[a.id]={id:a.id,name:a.name,type:'ok',msgs:[]};
+    byPerson[a.id].msgs.push({type:a.type,msg:a.msg});
+    if(a.type==='red'||byPerson[a.id].type==='ok')byPerson[a.id].type=a.type;
+    if(a.type==='red')byPerson[a.id].type='red';
+  });
+  const personItems=Object.values(byPerson).sort((a,b)=>a.type==='red'?-1:b.type==='red'?1:0);
+  const row=a=>`<div class="alf-item ${a.type}" onclick="openDetail(${a.id})">
+    <div class="al-dot ${a.type}"></div>
+    <div class="aln">${a.name}</div>
+    <div class="alm" style="display:flex;flex-direction:column;gap:3px">${a.msgs.map(m=>`<span style="color:${m.type==='red'?'var(--red)':m.type==='amber'?'var(--amber)':'var(--text2)'};font-size:12px">${m.msg}</span>`).join('')}</div>
+    <div class="alch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div>`;
+  const personReds=personItems.filter(i=>i.type==='red'),personAmbers=personItems.filter(i=>i.type==='amber');
   let h='';
-  if(reds.length)h+=`<div style="font-size:11px;font-weight:700;color:var(--red);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">緊急 (${reds.length}件)</div><div class="alf-list" style="margin-bottom:20px">${reds.map(row).join('')}</div>`;
-  if(ambers.length)h+=`<div style="font-size:11px;font-weight:700;color:var(--amber);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">要注意 (${ambers.length}件)</div><div class="alf-list">${ambers.map(row).join('')}</div>`;
+  if(personReds.length)h+=`<div style="font-size:11px;font-weight:700;color:var(--red);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">緊急 (${personReds.length}名)</div><div class="alf-list" style="margin-bottom:20px">${personReds.map(row).join('')}</div>`;
+  if(personAmbers.length)h+=`<div style="font-size:11px;font-weight:700;color:var(--amber);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">要注意 (${personAmbers.length}名)</div><div class="alf-list">${personAmbers.map(row).join('')}</div>`;
   el.innerHTML=h;
 }
-
+ 
 let statsYear=new Date().getFullYear();
 function renderStats(){
   const allYears=new Set();people.forEach(p=>{if(p.date)allYears.add(new Date(p.date).getFullYear());});
@@ -433,9 +452,9 @@ function renderStats(){
     </div></div>
     <div class="tw"><table><thead><tr><th>氏名</th><th>入社日</th><th>入社月</th><th>在籍状況</th><th>在籍期間</th></tr></thead><tbody>${detailRows}</tbody></table></div>`;
 }
-
+ 
 function openDetail(id){const p=people.find(x=>x.id===id);if(!p)return;detailId=id;document.getElementById('d-title').textContent=p.name;renderDetailBody(p);document.getElementById('detailModal').classList.add('open');}
-
+ 
 function renderDetailBody(p){
   const alerts=getAlerts(p);
   const makeChart=(items,maxVal,colorFn,valFn,titleFn)=>{
@@ -443,17 +462,25 @@ function renderDetailBody(p){
     const sorted=sortYM(items),mx=Math.max(...sorted.map(valFn),maxVal||1);
     return `<div class="mchart">${sorted.map(r=>{const v=valFn(r),h=Math.round((v/mx)*52)+4,col=colorFn(v);return `<div class="mchart-b" style="background:${col};height:${h}px" title="${titleFn(r)}"></div>`;}).join('')}</div><div class="mlabs">${sorted.map(r=>`<span>${r.ym.slice(0,4)===String(new Date().getFullYear())?MONTHS[parseInt(r.ym.slice(5))-1]:r.ym.slice(0,7)}</span>`).join('')}</div>`;
   };
-  const ccChart=makeChart(p.records.cc,30,v=>v<=15?'var(--red)':v<=20?'#E9A420':'var(--accent)',r=>r.score.reduce((a,b)=>a+b,0),r=>`${ymLabel(r.ym)}: ${r.score.reduce((a,b)=>a+b,0)}点`);
-  const otChart=makeChart(p.records.ot,0,v=>v>=45?'var(--red)':v>=30?'#E9A420':'var(--blue)',r=>r.value,r=>`${ymLabel(r.ym)}: ${parseFloat(r.value).toFixed(1)}h`);
+  const ccRecList=p.records.cc&&p.records.cc.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${sortYM(p.records.cc).map(r=>`<div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border-radius:var(--r);padding:4px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)}</span><span style="font-weight:500">${r.score.reduce((a,b)=>a+b,0)}点</span><button onclick="deleteRecord(${p.id},'cc','${r.ym}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:0;line-height:0;font-size:12px" title="削除">✕</button></div>`).join('')}</div>`:'';
+  const ccChart=makeChart(p.records.cc,30,v=>v<=15?'var(--red)':v<=20?'#E9A420':'var(--accent)',r=>r.score.reduce((a,b)=>a+b,0),r=>`${ymLabel(r.ym)}: ${r.score.reduce((a,b)=>a+b,0)}点`)+ccRecList;
+  const otRecList=p.records.ot&&p.records.ot.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${sortYM(p.records.ot).map(r=>`<div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border-radius:var(--r);padding:4px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)}</span><span style="font-weight:500">${parseFloat(r.value).toFixed(1)}h</span><button onclick="deleteRecord(${p.id},'ot','${r.ym}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:0;line-height:0;font-size:12px" title="削除">✕</button></div>`).join('')}</div>`:'';
+  const otChart=makeChart(p.records.ot,0,v=>v>=45?'var(--red)':v>=30?'#E9A420':'var(--blue)',r=>r.value,r=>`${ymLabel(r.ym)}: ${parseFloat(r.value).toFixed(1)}h`)+otRecList;
   let kpiChart=`<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>`;
+  const kpiRecList=p.records.kpi&&p.records.kpi.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${sortYM(p.records.kpi).map(r=>`<div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border-radius:var(--r);padding:4px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)}</span><span style="font-weight:500">${typeof r.rate==='number'?r.rate.toFixed(1):r.rate}%</span><button onclick="deleteRecord(${p.id},'kpi','${r.ym}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:0;line-height:0;font-size:12px" title="削除">✕</button></div>`).join('')}</div>`:'';
   if(p.records.kpi&&p.records.kpi.some(r=>r.rate!=null)){
     const sorted=sortYM(p.records.kpi).filter(r=>r.rate!=null),rates=sorted.map(r=>r.rate),mx=Math.max(...rates,100),b100=Math.round((100/mx)*52)+4;
     kpiChart=`<div style="position:relative"><div class="mchart">${sorted.map((r,i)=>{const v=rates[i],h=Math.round((v/mx)*52)+4,col=v<70?'var(--red)':v<90?'#E9A420':'var(--accent)';return `<div class="mchart-b" style="background:${col};height:${h}px" title="${ymLabel(r.ym)}: ${v}%"></div>`;}).join('')}</div><div style="position:absolute;bottom:${b100}px;left:0;right:0;border-top:1px dashed var(--border2);pointer-events:none"></div></div><div class="mlabs">${sorted.map(r=>`<span>${MONTHS[parseInt(r.ym.slice(5))-1]}</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${sorted.map((r,i)=>`<div style="background:var(--surface2);border-radius:var(--r);padding:5px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)} </span><span style="font-weight:500">${rates[i].toFixed(1)}%</span></div>`).join('')}</div>`;
-  }
+    kpiChart+=kpiRecList;
+  } else { kpiChart+=kpiRecList; }
   let absChart=`<div style="padding:12px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text3);text-align:center">データなし（下の「記録を追加」から入力できます）</div>`;
   if(p.records.abs&&p.records.abs.length){
     const sorted=sortYM(p.records.abs),mx=Math.max(...sorted.map(r=>r.absent+r.late),1);
     absChart=`<div class="mchart">${sorted.map(r=>{const t=r.absent+r.late,h=Math.round((t/mx)*52)+4,col=r.absent>=2?'var(--red)':t>0?'#E9A420':'var(--border)';return `<div class="mchart-b" style="background:${col};height:${h}px" title="${ymLabel(r.ym)}: 欠勤${r.absent}日 遅刻${r.late}回"></div>`;}).join('')}</div><div class="mlabs">${sorted.map(r=>`<span>${ymLabel(r.ym).replace(/\d{4}年/,'')}</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${sorted.filter(r=>r.absent>0||r.late>0).map(r=>`<div style="background:var(--surface2);border-radius:var(--r);padding:5px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)} </span><span style="font-weight:500">欠勤${r.absent}日 遅刻${r.late}回</span></div>`).join('')}</div>`;
+  }
+  if(p.records.abs&&p.records.abs.length){
+    const abRecList=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${sortYM(p.records.abs).map(r=>`<div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border-radius:var(--r);padding:4px 8px;font-size:11px;font-family:var(--mono)"><span style="color:var(--text3)">${ymLabel(r.ym)}</span><span style="font-weight:500">欠${r.absent} 遅${r.late}</span><button onclick="deleteRecord(${p.id},'abs','${r.ym}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:0;line-height:0;font-size:12px" title="削除">✕</button></div>`).join('')}</div>`;
+    absChart+=abRecList;
   }
   const alertHTML=alerts.length
     ?alerts.map(a=>`<div class="al-item ${a.type}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${a.msg}</div>`).join('')
@@ -484,7 +511,7 @@ function renderDetailBody(p){
         return `<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
           <div style="padding:8px 12px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center">
             <div><span style="font-size:12px;font-weight:700">${iv.date||ymLabel(iv.ym)}</span>${iv.interviewer?`<span style="font-size:11px;color:var(--text3);margin-left:8px">面談者: ${iv.interviewer}</span>`:''}</div>
-            <span style="font-size:13px;color:${rc};letter-spacing:1px">${stars} 離職懸念 ${iv.risk}/5</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:${rc};letter-spacing:1px">${stars} 離職懸念 ${iv.risk}/5</span><button onclick="deleteInterview(${p.id},'${iv.ym}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 6px;border-radius:4px;font-size:11px;line-height:1" title="削除">✕ 削除</button></div>
           </div>
           <div style="padding:10px 12px;font-size:12px;color:var(--text2);display:flex;flex-direction:column;gap:10px">
             <div><div style="font-size:10px;font-weight:700;color:var(--green);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">ポジティブな点</div>${pr||'<span style="color:var(--text3)">—</span>'}</div>
@@ -554,13 +581,25 @@ function renderDetailBody(p){
       </div>
     </div>`;
 }
-
+ 
+function deleteRecord(id,type,ym){
+  if(!confirm(`${ymLabel(ym)}のデータを削除しますか？`))return;
+  const p=people.find(x=>x.id===id);if(!p)return;
+  p.records[type]=p.records[type].filter(r=>r.ym!==ym);
+  save();renderDetailBody(p);renderAll();
+}
+function deleteInterview(id,ym){
+  if(!confirm(`${ymLabel(ym)}の面談分析を削除しますか？`))return;
+  const p=people.find(x=>x.id===id);if(!p)return;
+  p.records.interviews=p.records.interviews.filter(r=>r.ym!==ym);
+  save();renderDetailBody(p);
+}
 function toggleInlineForm(id){document.querySelectorAll('.inline-form').forEach(f=>{if(f.id!==id)f.classList.remove('open');});document.getElementById(id).classList.toggle('open');}
 function saveCC(){const p=people.find(x=>x.id===detailId);if(!p)return;const ym=document.getElementById('cc-ym').value;if(!ym)return;const score=[+document.getElementById('cc-1').value||0,+document.getElementById('cc-2').value||0,+document.getElementById('cc-3').value||0,+document.getElementById('cc-4').value||0,+document.getElementById('cc-5').value||0];p.records.cc=p.records.cc.filter(r=>r.ym!==ym);p.records.cc.push({ym,score});save();renderDetailBody(p);renderAll();document.getElementById('ccForm').classList.remove('open');}
 function saveOT(){const p=people.find(x=>x.id===detailId);if(!p)return;const ym=document.getElementById('ot-ym').value;if(!ym)return;const value=parseFloat(document.getElementById('ot-v').value)||0;p.records.ot=p.records.ot.filter(r=>r.ym!==ym);p.records.ot.push({ym,value});save();renderDetailBody(p);renderAll();document.getElementById('otForm').classList.remove('open');}
 function saveKPI(){const p=people.find(x=>x.id===detailId);if(!p)return;const ym=document.getElementById('kpi-ym').value;if(!ym)return;const rate=parseFloat(document.getElementById('kpi-r').value);if(isNaN(rate)){alert('達成率を入力してください');return;}p.records.kpi=p.records.kpi.filter(r=>r.ym!==ym);p.records.kpi.push({ym,rate:parseFloat(rate.toFixed(1))});save();renderDetailBody(p);renderAll();document.getElementById('kpiForm').classList.remove('open');}
 function saveAbs(){const p=people.find(x=>x.id===detailId);if(!p)return;const ym=document.getElementById('abs-ym').value;if(!ym)return;const absent=+document.getElementById('abs-ab').value||0,late=+document.getElementById('abs-lt').value||0;p.records.abs=p.records.abs.filter(r=>r.ym!==ym);p.records.abs.push({ym,absent,late});save();renderDetailBody(p);renderAll();document.getElementById('absForm').classList.remove('open');}
-
+ 
 function analyzeInterview(){
   const p=people.find(x=>x.id===detailId);if(!p)return;
   const date=document.getElementById('oo-date').value,interviewer=document.getElementById('oo-interviewer').value,text=document.getElementById('oo-text').value.trim();
@@ -588,24 +627,25 @@ function analyzeInterview(){
   }).catch(()=>{resultEl.innerHTML=`<div style="padding:12px;background:var(--red-light);border-radius:var(--r);font-size:12px;color:var(--red)">通信エラーが発生しました。</div>`;});
 }
 function saveInterview(ym,date,interviewer,result){const p=people.find(x=>x.id===detailId);if(!p)return;if(!p.records.interviews)p.records.interviews=[];p.records.interviews=p.records.interviews.filter(r=>r.ym!==ym);p.records.interviews.push({ym,date,interviewer,...result});save();renderDetailBody(p);}
-
+ 
 function openAdd(){document.getElementById('a-name').value='';document.getElementById('a-date').value=new Date().toISOString().slice(0,10);document.getElementById('a-date1y').value='';document.getElementById('a-retire').value='';document.getElementById('a-status').value='在籍';document.getElementById('a-tenure').value='';document.getElementById('a-mentor').value='';document.getElementById('a-manager').value='';document.getElementById('a-note').value='';document.getElementById('addModal').classList.add('open');}
 function addPerson(){const name=document.getElementById('a-name').value.trim();if(!name){alert('氏名を入力してください');return;}people.push({id:nextId++,name,date:document.getElementById('a-date').value,date1y:document.getElementById('a-date1y').value,retire:document.getElementById('a-retire').value,status:document.getElementById('a-status').value,tenure:document.getElementById('a-tenure').value,mentor:document.getElementById('a-mentor').value,manager:document.getElementById('a-manager').value,note:document.getElementById('a-note').value,records:{cc:[],ot:[],kpi:[],abs:[]}});save();closeModal('addModal');renderAll();}
 function openEditById(id){const p=people.find(x=>x.id===id);if(!p)return;editingId=id;document.getElementById('e-name').value=p.name;document.getElementById('e-date').value=p.date||'';document.getElementById('e-date1y').value=p.date1y||'';document.getElementById('e-retire').value=p.retire||'';document.getElementById('e-status').value=p.status;document.getElementById('e-tenure').value=p.tenure||'';document.getElementById('e-mentor').value=p.mentor||'';document.getElementById('e-manager').value=p.manager||'';document.getElementById('e-note').value=p.note||'';document.getElementById('editModal').classList.add('open');}
 function openEditFromDetail(){closeModal('detailModal');openEditById(detailId);}
 function saveEdit(){const p=people.find(x=>x.id===editingId);if(!p)return;p.name=document.getElementById('e-name').value.trim()||p.name;p.date=document.getElementById('e-date').value||p.date;p.date1y=document.getElementById('e-date1y').value;p.retire=document.getElementById('e-retire').value;p.status=document.getElementById('e-status').value;p.tenure=document.getElementById('e-tenure').value;p.mentor=document.getElementById('e-mentor').value;p.manager=document.getElementById('e-manager').value;p.note=document.getElementById('e-note').value;save();closeModal('editModal');renderAll();if(detailId===editingId)openDetail(detailId);}
 function deletePerson(id){if(!confirm('削除しますか？'))return;people=people.filter(x=>x.id!==id);save();renderAll();}
-
+ 
 const pageTitles={list:'入社者一覧',alerts:'アラート',stats:'離職率・統計'};
 function showPage(name,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');if(btn)btn.classList.add('active');document.getElementById('pageTitle').textContent=pageTitles[name]||name;if(name==='alerts')renderAlerts();if(name==='stats')renderStats();}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
 document.getElementById('sbBadge').onclick=function(){showPage('alerts',document.querySelectorAll('.nav-item')[1]);};
-
+ 
 function exportCSV(){const rows=[['氏名','入社日','退職日','在籍状況','在籍期間','メンター','部長','CC最新(年月)','CC最新スコア','残業最新(年月)','残業最新(h)','KPI最新(年月)','KPI達成率']];people.forEach(p=>{const cc=latestCC(p),ot=latestOT(p),kpi=latestKPI(p);rows.push([p.name,p.date,p.retire||'',p.status,p.tenure||'',p.mentor||'',p.manager||'',cc?ymLabel(cc.ym):'',cc?cc.score:'',ot?ymLabel(ot.ym):'',ot?ot.v:'',kpi?ymLabel(kpi.ym):'',kpi?kpi.rate+'%':'']);});const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));a.download=`onboarding_${new Date().toISOString().slice(0,10)}.csv`;a.click();}
-
+ 
 function renderAll(){renderSummary();renderTable();}
 renderAll();
 </script>
 </body>
 </html>
+ 
