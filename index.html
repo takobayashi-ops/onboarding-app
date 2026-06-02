@@ -426,13 +426,28 @@ function alertLevel(p){const a=getAlerts(p);return a.some(x=>x.type==='red')?'re
 function renderSummary(){
   const total=people.length,active=people.filter(p=>p.status==='在籍').length,retired=total-active;
   const reds=people.filter(p=>alertLevel(p)==='red').length,ambers=people.filter(p=>alertLevel(p)==='amber').length;
-  const rr=(retired/total*100).toFixed(1);
+  // 年度別集計
+  const allYears=[...new Set(people.map(p=>p.date?new Date(p.date).getFullYear():null).filter(Boolean))].sort();
+  const yearCards=allYears.map(yr=>{
+    const yp=people.filter(p=>p.date&&new Date(p.date).getFullYear()===yr);
+    const ya=yp.filter(p=>p.status==='在籍').length;
+    const yr2=yp.filter(p=>p.status==='退職').length;
+    const rr2=yp.length>0?(yr2/yp.length*100).toFixed(1):'0.0';
+    return `<div class="sum-card" style="border-top:3px solid ${yr===2025?'#D4A843':yr===2026?'#5B8FD4':'var(--border2)'}">
+      <div class="lbl">${yr}年入社</div>
+      <div style="display:flex;gap:12px;align-items:flex-end;margin-top:4px">
+        <div><div class="val" style="font-size:20px">${ya}</div><div class="sub">在籍</div></div>
+        <div><div class="val" style="font-size:20px;color:var(--text2)">${yr2}</div><div class="sub">退職</div></div>
+        <div style="margin-left:auto"><div class="val" style="font-size:18px;color:${parseFloat(rr2)>20?'var(--red)':parseFloat(rr2)>10?'var(--amber)':'var(--green)'}">${rr2}%</div><div class="sub">離職率</div></div>
+      </div>
+    </div>`;
+  }).join('');
   document.getElementById('sumGrid').innerHTML=`
-    <div class="sum-card"><div class="lbl">在籍者数</div><div class="val">${active}</div><div class="sub">全${total}名中</div></div>
-    <div class="sum-card"><div class="lbl">退職者数</div><div class="val">${retired}</div><div class="sub">離職率 ${rr}%</div></div>
+    ${yearCards}
     <div class="sum-card"><div class="lbl">緊急アラート</div><div class="val red">${reds}</div><div class="sub">要即対応</div></div>
-    <div class="sum-card"><div class="lbl">要注意</div><div class="val amber">${ambers}</div><div class="sub">経過観察</div></div>
-    <div class="sum-card"><div class="lbl">問題なし</div><div class="val green">${active-reds-ambers}</div><div class="sub">在籍者中</div></div>`;
+    <div class="sum-card"><div class="lbl">要注意</div><div class="val amber">${ambers}</div><div class="sub">経過観察</div></div>`;
+  // グリッドを年数+2列に
+  document.getElementById('sumGrid').style.gridTemplateColumns=`repeat(${allYears.length+2},1fr)`;
   const n=reds+ambers,badge=document.getElementById('sbBadge');
   badge.className='al-badge'+(n?'':' ok');
   badge.textContent=n?`⚠ アラート ${n}件`:'✓ アラートなし';
@@ -451,27 +466,65 @@ function renderTable(){
   });
   const tb=document.getElementById('tBody');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="12"><div class="empty">該当者なし</div></td></tr>`;return;}
-  tb.innerHTML=rows.map(p=>{
+  rows.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  let _lastYear=null;
+  const _rows=[];
+  rows.forEach(p=>{
     const al=alertLevel(p);
-    const alB=al==='red'?'<span class="badge b-red">緊急</span>':al==='amber'?'<span class="badge b-amber">要注意</span>':'<span class="badge b-green">正常</span>';
-    const stB=p.status==='退職'?'<span class="badge b-gray">退職</span>':'<span class="badge b-blue">在籍</span>';
+    const isRetired=p.status==='退職';
+    const joinYear=p.date?new Date(p.date).getFullYear():0;
+    if(joinYear&&joinYear!==_lastYear){
+      _rows.push(`<tr style="background:var(--surface2);border-top:2px solid var(--border2);border-bottom:1px solid var(--border)"><td colspan="12" style="padding:7px 14px;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text2);letter-spacing:.04em">${joinYear}年入社</td></tr>`);
+      _lastYear=joinYear;
+    }
+ 
+    // アラートアイコン
+    const alIcon=al==='red'
+      ?`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--red-light);color:var(--red);padding:4px 9px;border-radius:100px;font-size:11px;font-weight:700"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);animation:al-dot-pulse 1.2s ease-in-out infinite"></span>緊急</span>`
+      :al==='amber'
+      ?`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--amber-light);color:var(--amber);padding:4px 9px;border-radius:100px;font-size:11px;font-weight:600"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#E9A420"></span>要注意</span>`
+      :`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green);padding:4px 9px;border-radius:100px;font-size:11px;font-weight:600"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>正常</span>`;
+ 
+    // アバター
+    const nameCell=`<div class="person-cell"><div class="person-name">${p.name}</div></div>`;
+ 
+    // 在籍状況
+    const stB=isRetired
+      ?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text3)"><span class="status-dot sd-gray"></span>退職</span>`
+      :`<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--green)"><span class="status-dot sd-green"></span>在籍</span>`;
+ 
+    // メトリクス
     const cc=latestCC(p);
-    const ccB=cc?`<span class="badge ${cc.score<=15?'b-red':cc.score<=20?'b-amber':'b-green'}">${cc.score}/30 <span style="font-weight:400;opacity:.7">${ymLabel(cc.ym)}</span></span>`:'<span class="badge b-gray">未入力</span>';
+    const ccCol=cc?(cc.score<THRESHOLDS.ccWarn?'var(--amber)':'var(--green)'):'var(--text3)';
+    const ccB=cc?`<div class="metric-cell"><div class="metric-val" style="color:${ccCol}">${cc.score}<span style="font-size:10px;color:var(--text3)">/30</span></div><div class="metric-sub">${ymLabel(cc.ym)}</div></div>`:`<span style="font-size:12px;color:var(--text3)">—</span>`;
     const ot=latestOT(p);
-    const otB=ot?`<span class="badge ${ot.v>=45?'b-red':ot.v>=30?'b-amber':'b-gray'}">${ot.v}h <span style="font-weight:400;opacity:.7">${ymLabel(ot.ym)}</span></span>`:'<span class="badge b-gray">未入力</span>';
+    const otCol=ot?(ot.v>=THRESHOLDS.otRed?'var(--red)':ot.v>=THRESHOLDS.otAmber?'var(--amber)':'var(--text)'):'var(--text3)';
+    const otB=ot?`<div class="metric-cell"><div class="metric-val" style="color:${otCol}">${parseFloat(ot.v).toFixed(1)}<span style="font-size:10px;color:var(--text3)">h</span></div><div class="metric-sub">${ymLabel(ot.ym)}</div></div>`:`<span style="font-size:12px;color:var(--text3)">—</span>`;
     const kpi=latestKPI(p);
-    const kpiB=kpi?`<span class="badge ${kpi.rate<70?'b-red':kpi.rate<90?'b-amber':'b-green'}">${kpi.rate}% <span style="font-weight:400;opacity:.7">${ymLabel(kpi.ym)}</span></span>`:'<span class="badge b-gray">未入力</span>';
-    return `<tr class="${al==='red'?'al-red':al==='amber'?'al-amber':''}" onclick="openDetail(${p.id})">
-      <td>${alB}</td><td style="font-weight:500">${p.name}</td>
-      <td style="font-family:var(--mono);font-size:12px">${p.date||'—'}</td>
-      <td>${stB}</td><td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
-      <td style="font-size:12px">${p.mentor||'—'}</td><td style="font-size:12px">${p.manager||'—'}</td>
-      <td>${ccB}</td><td>${otB}</td><td>${kpiB}</td>
+    const kpiCol=kpi?(kpi.rate<THRESHOLDS.kpiRed?'var(--red)':kpi.rate<THRESHOLDS.kpiAmber?'var(--amber)':'var(--green)'):'var(--text3)';
+    const kpiB=kpi?`<div class="metric-cell"><div class="metric-val" style="color:${kpiCol}">${typeof kpi.rate==='number'?kpi.rate.toFixed(1):kpi.rate}<span style="font-size:10px;color:var(--text3)">%</span></div><div class="metric-sub">${ymLabel(kpi.ym)}</div></div>`:`<span style="font-size:12px;color:var(--text3)">—</span>`;
+    const ab=latestAbs(p);
+    const abHasIssue=ab&&(ab.absent>0||ab.late>0);
+    const abB=ab?`<div class="metric-cell"><div class="metric-val" style="color:${abHasIssue?'var(--amber)':'var(--text)'}">欠${ab.absent} 遅${ab.late}</div><div class="metric-sub">${ymLabel(ab.ym)}</div></div>`:`<span style="font-size:12px;color:var(--text3)">—</span>`;
+ 
+    const retiredStyle=isRetired?'opacity:0.42;filter:grayscale(0.4)':'';
+ 
+    const rowHtml=`<tr class="${al==='red'?'al-red':al==='amber'?'al-amber':''}" onclick="openDetail(${p.id})" style="${retiredStyle}">
+      <td>${alIcon}</td>
+      <td>${nameCell}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text2)">${p.date||'—'}</td>
+      <td>${stB}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.mentor||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.manager||'—'}</td>
+      <td>${ccB}</td><td>${otB}</td><td>${kpiB}</td><td>${abB}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap">
         <button class="ib" onclick="openEditById(${p.id})" title="編集"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
         <button class="ib del" onclick="deletePerson(${p.id})" title="削除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
       </td></tr>`;
-  }).join('');
+    _rows.push(rowHtml);
+  });
+  tb.innerHTML=_rows.join('');
 }
  
 // ── Alerts page ───────────────────────────────────────────────────
@@ -517,18 +570,28 @@ function renderStats(){
   const rate=totalJoined>0?(totalRetired/totalJoined*100).toFixed(1):'0.0';
  
   const maxBar=Math.max(...monthData.map(d=>d.joined),1);
+  const BAR_H=120;
   const barHtml=monthData.map((d,i)=>{
-    const hJ=Math.round((d.joined/maxBar)*72)+(d.joined>0?4:0);
+    const hJ=d.joined>0?Math.round((d.joined/maxBar)*(BAR_H-20))+20:0;
     const hR=d.joined>0?Math.round((d.retired/d.joined)*hJ):0;
     const hA=hJ-hR;
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-      <div style="height:72px;width:100%;display:flex;flex-direction:column;justify-content:flex-end">
-        ${d.joined>0?`<div style="width:100%;height:${hA}px;background:var(--accent);border-radius:${hR?'0':'3px'} ${hR?'0':'3px'} 0 0" title="${d.active}名在籍"></div>
-        <div style="width:100%;height:${hR}px;background:var(--red);border-radius:3px 3px 0 0" title="${d.retired}名退職"></div>`
-        :`<div style="width:100%;height:4px;background:var(--border);border-radius:2px 2px 0 0"></div>`}
+    const isCurrentMonth=(new Date().getFullYear()===yr&&new Date().getMonth()===i);
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">
+      <!-- 数値ラベル -->
+      <div style="height:18px;display:flex;align-items:flex-end;justify-content:center">
+        ${d.joined>0?`<span style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text2)">${d.joined}</span>`:''}
       </div>
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text3)">${MONTHS[i].replace('月','')}</div>
-      ${d.joined>0?`<div style="font-size:9px;font-family:var(--mono);color:var(--text3)">${d.joined}名</div>`:''}
+      <!-- バー本体 -->
+      <div style="height:${BAR_H}px;width:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative">
+        ${d.joined>0
+          ? `<div style="width:100%;height:${hA}px;background:#378ADD;border-radius:${hR?'0 0':'4px 4px'} 0 0;transition:height .3s" title="${d.active}名在籍"></div>
+             ${hR>0?`<div style="width:100%;height:${hR}px;background:#BDBDBD;border-radius:4px 4px 0 0" title="${d.retired}名退職"></div>`:''}
+             `
+          :`<div style="width:100%;height:3px;background:var(--border);border-radius:2px;margin-bottom:0"></div>`
+        }
+      </div>
+      <!-- 月ラベル -->
+      <div style="font-size:11px;font-family:var(--mono);color:${isCurrentMonth?'var(--accent)':'var(--text3)'};font-weight:${isCurrentMonth?'700':'400'}">${MONTHS[i].replace('月','')}</div>
     </div>`;
   }).join('');
  
@@ -549,19 +612,42 @@ function renderStats(){
     <div style="margin-bottom:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--r);font-size:12px;color:var(--text2)">
       <strong style="color:var(--text)">集計方法：</strong>${yr}年に入社した人のうち、現在退職している人の割合です（月別に入社者内訳を表示）
     </div>
-    <div class="sum-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+    <div class="sum-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
       <div class="sum-card"><div class="lbl">${yr}年 入社者数</div><div class="val">${totalJoined}</div><div class="sub">1月〜12月</div></div>
       <div class="sum-card"><div class="lbl">${yr}年 退職者数</div><div class="val red">${totalRetired}</div></div>
       <div class="sum-card"><div class="lbl">${yr}年 離職率</div><div class="val ${parseFloat(rate)>20?'red':parseFloat(rate)>10?'amber':'green'}">${rate}%</div><div class="sub">入社者中の退職割合</div></div>
     </div>
-    <div class="tw" style="margin-bottom:20px">
-      <div style="padding:16px 20px 12px">
-        <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">月別入社者（緑=在籍中 / 赤=退職済）</div>
-        <div style="display:flex;gap:4px;align-items:flex-end;padding-top:8px">${barHtml}</div>
-        <div style="display:flex;gap:12px;margin-top:12px">
-          <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--accent);border-radius:2px"></div>在籍中</div>
-          <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;background:var(--red);border-radius:2px"></div>退職済</div>
+    ${years.length>=2?`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">${years.map(y=>{
+      const yd=people.filter(p=>p.date&&new Date(p.date).getFullYear()===y);
+      const ya=yd.filter(p=>p.status==='在籍').length;
+      const yr2=yd.filter(p=>p.status==='退職').length;
+      const rr=yd.length>0?(yr2/yd.length*100).toFixed(1):'0.0';
+      const isSelected=y===yr;
+      return `<div style="background:var(--surface);border:${isSelected?'2px solid var(--accent)':'1px solid var(--border)'};border-radius:var(--rl);padding:14px 16px;cursor:pointer" onclick="statsYear=${y};renderStats()">
+        <div style="font-size:11px;font-weight:700;color:${isSelected?'var(--accent)':'var(--text3)'};font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">${y}年入社</div>
+        <div style="display:flex;gap:16px;align-items:flex-end">
+          <div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">${yd.length}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">入社</div></div>
+          <div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:#378ADD">${ya}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">在籍</div></div>
+          <div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text2)">${yr2}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">退職</div></div>
+          <div style="margin-left:auto"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:${parseFloat(rr)>20?'var(--red)':parseFloat(rr)>10?'var(--amber)':'var(--green)'}">${rr}%</div><div style="font-size:10px;color:var(--text3);margin-top:2px">離職率</div></div>
         </div>
+      </div>`;
+    }).join('')}</div>`:''}
+    <div class="tw" style="margin-bottom:20px">
+      <div style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">月別入社者数</div>
+          <div style="display:flex;gap:16px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)">
+              <div style="width:12px;height:12px;background:#378ADD;border-radius:3px"></div>在籍中
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)">
+              <div style="width:12px;height:12px;background:#BDBDBD;border-radius:3px"></div>退職済
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:flex-end;padding:0 4px">${barHtml}</div>
       </div>
     </div>
     <div class="tw"><table>
