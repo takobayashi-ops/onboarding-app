@@ -434,11 +434,11 @@ function renderSummary(){
     const yr2=yp.filter(p=>p.status==='退職').length;
     const rr2=yp.length>0?(yr2/yp.length*100).toFixed(1):'0.0';
     return `<div class="sum-card" style="border-top:3px solid ${yr===2025?'#D4A843':yr===2026?'#5B8FD4':'var(--border2)'}">
-      <div class="lbl">${yr}年入社</div>
-      <div style="display:flex;gap:12px;align-items:flex-end;margin-top:4px">
-        <div><div class="val" style="font-size:20px">${ya}</div><div class="sub">在籍</div></div>
-        <div><div class="val" style="font-size:20px;color:var(--text2)">${yr2}</div><div class="sub">退職</div></div>
-        <div style="margin-left:auto"><div class="val" style="font-size:18px;color:${parseFloat(rr2)>20?'var(--red)':parseFloat(rr2)>10?'var(--amber)':'var(--green)'}">${rr2}%</div><div class="sub">離職率</div></div>
+      <div class="lbl" style="margin-bottom:12px">${yr}年入社</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+        <div><div class="val" style="font-size:22px">${ya}</div><div class="sub" style="margin-top:4px">在籍</div></div>
+        <div><div class="val" style="font-size:22px;color:var(--text2)">${yr2}</div><div class="sub" style="margin-top:4px">退職</div></div>
+        <div><div class="val" style="font-size:22px;color:${parseFloat(rr2)>20?'var(--red)':parseFloat(rr2)>10?'var(--amber)':'var(--green)'}">${rr2}%</div><div class="sub" style="margin-top:4px">離職率</div></div>
       </div>
     </div>`;
   }).join('');
@@ -486,7 +486,11 @@ function renderTable(){
       :`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green);padding:4px 9px;border-radius:100px;font-size:11px;font-weight:600"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>正常</span>`;
  
     // アバター
-    const nameCell=`<div class="person-cell"><div class="person-name">${p.name}</div></div>`;
+    const today=new Date();
+    const joinDate=p.date?new Date(p.date):null;
+    const oneYearPassed=joinDate&&(today-joinDate>=365*24*60*60*1000);
+    const yearBadge=oneYearPassed?`<span style="font-size:10px;font-family:var(--mono);background:#E8F0F8;color:#1E4A7A;padding:2px 6px;border-radius:3px;margin-left:6px;font-weight:500">1年経過</span>`:'';
+    const nameCell=`<div class="person-cell"><div class="person-name">${p.name}${yearBadge}</div></div>`;
  
     // 在籍状況
     const stB=isRetired
@@ -599,10 +603,15 @@ function renderStats(){
  
   const detailRows=people.filter(p=>p.date&&new Date(p.date).getFullYear()===yr).map(p=>{
     const m=new Date(p.date).getMonth();
-    return `<tr><td style="font-weight:500">${p.name}</td>
+    const isRetired=p.status==='退職';
+    const rowStyle=isRetired?'opacity:0.42;filter:grayscale(0.4)':'';
+    const joinDate2=p.date?new Date(p.date):null;
+    const oneYear2=joinDate2&&(new Date()-joinDate2>=365*24*60*60*1000);
+    const yb2=oneYear2?`<span style="font-size:10px;font-family:var(--mono);background:#E8F0F8;color:#1E4A7A;padding:2px 6px;border-radius:3px;margin-left:6px;font-weight:500">1年経過</span>`:'';
+    return `<tr style="${rowStyle}"><td style="font-weight:500">${p.name}${yb2}</td>
       <td style="font-family:var(--mono);font-size:12px">${p.date}</td>
       <td style="font-size:12px;color:var(--text2)">${MONTHS[m]}</td>
-      <td>${p.status==='退職'?`<span class="badge b-gray">退職</span><span style="font-size:11px;color:var(--text3);margin-left:6px">${p.retire||''}</span>`:'<span class="badge b-blue">在籍</span>'}</td>
+      <td>${isRetired?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text3)"><span class="status-dot sd-gray"></span>退職</span><span style="font-size:11px;color:var(--text3);margin-left:6px">${p.retire||''}</span>`:'<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--green)"><span class="status-dot sd-green"></span>在籍</span>'}</td>
       <td style="font-size:12px;color:var(--text2)">${p.tenure||'—'}</td>
     </tr>`;
   }).join('')||`<tr><td colspan="5"><div class="empty">該当者なし</div></td></tr>`;
