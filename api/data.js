@@ -9,16 +9,25 @@ export default async function handler(req, res) {
   try {
     let response;
     if (req.method === 'GET') {
-      response = await fetch(GAS_URL + '?action=getAll');
+      response = await fetch(GAS_URL + '?action=getAll', {
+        redirect: 'follow',
+        headers: { 'Accept': 'application/json' }
+      });
     } else {
       response = await fetch(GAS_URL, {
         method: 'POST',
+        redirect: 'follow',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(req.body)
       });
     }
-    const data = await response.json();
-    res.status(200).json(data);
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      res.status(200).json(data);
+    } catch(e) {
+      res.status(500).json({ error: 'GAS returned non-JSON: ' + text.slice(0, 200) });
+    }
   } catch(e) {
     res.status(500).json({ error: e.toString() });
   }
